@@ -117,7 +117,7 @@ int main(int argc,char** argv){
     //get user input--------------------------------------------------------------
     printf("Lecture saisie\n");
     const char saisie[256];
-    scanf("%s", saisie);
+    fgets("%s", saisie); 
     const void* msg = saisie;
 
 
