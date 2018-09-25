@@ -156,7 +156,7 @@ int main(int argc, char** argv)
   listen_client(socket,20);
 
 
-  for (;;){
+
 
 
     //accept connection from client-------------------------------------------
@@ -164,10 +164,12 @@ int main(int argc, char** argv)
     struct sockaddr_in pointeur_host_addr;
     int new_socket = do_accept(socket,pointeur_host_addr);
 
+  for (;;){
 
     //read what the client has to say-----------------------------------------
     printf("Lecture\n");
     memset (buffer, '\0', sizeof (buffer));
+
     do_read(new_socket,buffer);
     printf("Le message est: %s\n",buffer);
 
@@ -181,6 +183,7 @@ int main(int argc, char** argv)
     if(strcmp(buffer, "/quit") == 0 ){
       printf("Fermeture socket client\n");
       close_socket(new_socket);
+      break;
     }
 
   }

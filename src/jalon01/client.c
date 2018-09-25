@@ -33,9 +33,10 @@ int do_socket(int domain, int type, int protocol) {
 //------------------------------------------------------------------------------
 
 
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr) {
+void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* host) {
 
   int portno;
+  int iphost;
 
   //clean the serv_add structure
   memset(serv_addr,'\0',sizeof(serv_addr));
@@ -43,11 +44,13 @@ void get_addr_info(const char* port, struct sockaddr_in* serv_addr) {
   //cast the port from a string to an int
   portno = atoi(port);
 
+  iphost=inet_addr(host);
+
   //internet family protocol
   serv_addr->sin_family = AF_INET;
 
   //we bind to any ip form the host
-  serv_addr->sin_addr.s_addr = htonl(INADDR_ANY);
+    serv_addr->sin_addr.s_addr = htonl(iphost);
 
   //we bind on the tcp port specified
   serv_addr->sin_port = htons(portno);
@@ -90,13 +93,12 @@ void do_read(int socket, char *buffer){
 int main(int argc,char** argv){
   char buffer[256];
 
-  if (argc != 2)
+  if (argc != 3)
   {
     fprintf(stderr,"usage: RE216_CLIENT hostname port\n");
     return 1;
   }
 
-  while(1){
 
     //get the socket--------------------------------------------------------------
     printf("Création socket\n");
@@ -106,18 +108,19 @@ int main(int argc,char** argv){
     //init the serv_add structure-------------------------------------------------
     printf("Informations serveur\n");
     struct sockaddr_in pointeur_serv_addr;
-    get_addr_info(argv[1], &pointeur_serv_addr);
+    get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
 
 
     //connect to remote socket----------------------------------------------------
     printf("Connexion serveur\n");
     do_connect(socket,pointeur_serv_addr);
+    while(1){
 
 
     //get user input--------------------------------------------------------------
     printf("Lecture saisie\n");
     const char saisie[256];
-    fgets("%s", saisie); 
+    gets(saisie);
     const void* msg = saisie;
 
 
@@ -130,12 +133,7 @@ int main(int argc,char** argv){
     printf("Lecture message initial\n");
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
-    printf("Le message est: %s\n",buffer);
-
-
-    //close socket----------------------------------------------------------------
-    printf("Fermeture socket\n");
-    close(socket);
+    printf("Le message reçu est: %s\n",buffer);
 
 
     //connexion end---------------------------------------------------------------
@@ -145,6 +143,10 @@ int main(int argc,char** argv){
     }
 
   }
+
+  //close socket----------------------------------------------------------------
+  printf("Fermeture socket\n");
+  close(socket);
 
   return 0;
 
