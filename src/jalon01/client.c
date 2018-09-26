@@ -16,7 +16,7 @@ void error(const char *msg)
   exit(1);
 }
 
-//------------------------------------------------------------------------------
+
 
 
 int do_socket(int domain, int type, int protocol) {
@@ -99,8 +99,6 @@ void do_read(int socket, char *buffer){
 
 int main(int argc,char** argv){
   char buffer[256];
-  char saisie[256];
-
 
   if (argc != 3)
   {
@@ -128,8 +126,8 @@ int main(int argc,char** argv){
 
     //get user input--------------------------------------------------------------
     printf("Etape : Lecture saisie\n");
-    memset (saisie, '\0', sizeof (saisie));
-    read(STDIN_FILENO,saisie,sizeof(saisie));
+    const char saisie[256];
+    gets(saisie);
     const void* msg = saisie;
 
 
@@ -137,7 +135,6 @@ int main(int argc,char** argv){
     printf("Etape : Envoi message utilisateur\n");
     handle_client_message(socket,msg);
 
-    //connexion end---------------------------------------------------------------
     if(strcmp(msg, "/quit") == 0 ){
       printf("Fermeture connexion client\n");
       break;
@@ -148,6 +145,9 @@ int main(int argc,char** argv){
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);
+
+
+    //connexion end---------------------------------------------------------------
 
 
   }
