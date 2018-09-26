@@ -6,9 +6,18 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+#include <arpa/inet.h>
 
+//Fonctions---------------------------------------------------------------------
 
-// Fonctions -------------------------------------------------------------------
+void error(const char *msg)
+{
+  perror(msg);
+  exit(1);
+}
+
+//------------------------------------------------------------------------------
+
 
 int do_socket(int domain, int type, int protocol) {
   int socket1;
@@ -90,6 +99,8 @@ void do_read(int socket, char *buffer){
 
 int main(int argc,char** argv){
   char buffer[256];
+  char saisie[256];
+
 
   if (argc != 3)
   {
@@ -106,7 +117,7 @@ int main(int argc,char** argv){
     //init the serv_add structure-------------------------------------------------
     printf("Etape : Informations serveur\n");
     struct sockaddr_in pointeur_serv_addr;
-    get_addr_info(argv[2], &pointeur_serv_addr,argv[1]);
+    get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
 
 
     //connect to remote socket----------------------------------------------------
@@ -117,8 +128,8 @@ int main(int argc,char** argv){
 
     //get user input--------------------------------------------------------------
     printf("Etape : Lecture saisie\n");
-    const char saisie[256];
-    gets(saisie);
+    memset (saisie, '\0', sizeof (saisie));
+    read(STDIN_FILENO,saisie,sizeof(saisie));
     const void* msg = saisie;
 
 
@@ -126,6 +137,7 @@ int main(int argc,char** argv){
     printf("Etape : Envoi message utilisateur\n");
     handle_client_message(socket,msg);
 
+    //connexion end---------------------------------------------------------------
     if(strcmp(msg, "/quit") == 0 ){
       printf("Fermeture connexion client\n");
       break;
@@ -136,9 +148,6 @@ int main(int argc,char** argv){
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);
-
-
-    //connexion end---------------------------------------------------------------
 
 
   }

@@ -23,6 +23,6 @@ sys/socket.h
 -
 netdb.h
 -
-error.h
+arpa/inet.h
 -
 
