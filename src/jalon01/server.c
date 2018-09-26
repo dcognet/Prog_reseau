@@ -52,7 +52,7 @@ void get_addr_info(const char* port, struct sockaddr_in* serv_addr) {
   serv_addr->sin_family = AF_INET;
 
   //we bind to any ip form the host
-  serv_addr->sin_addr.s_addr = htonl(INADDR_ANY);
+  serv_addr->sin_addr.s_addr = INADDR_ANY;
 
   //we bind on the tcp port specified
   serv_addr->sin_port = htons(portno);
@@ -136,23 +136,23 @@ int main(int argc, char** argv)
   char buffer[256];
 
   //get the socket--------------------------------------------------------------
-  printf("Création socket\n");
+  printf("Etape : Création socket\n");
   int socket = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
 
   //init the serv_add structure
-  printf("Informations serveur\n");
+  printf("Etape : Informations serveur\n");
   struct sockaddr_in pointeur_serv_addr;
   get_addr_info(argv[1], &pointeur_serv_addr);
 
 
   //perform the binding---------------------------------------------------------
-  printf("Bind\n");
+  printf("Etape : Bind\n");
   do_bind(socket,pointeur_serv_addr);
 
 
   //listen for at most 20 concurrent client-------------------------------------
-  printf("Ecoute\n");
+  printf("Etape : Ecoute\n");
   listen_client(socket,20);
 
 
@@ -160,31 +160,32 @@ int main(int argc, char** argv)
 
 
     //accept connection from client-------------------------------------------
-    printf("Acceptation\n");
+    printf("Etape : Acceptation\n");
     struct sockaddr_in pointeur_host_addr;
     int new_socket = do_accept(socket,pointeur_host_addr);
 
   for (;;){
 
     //read what the client has to say-----------------------------------------
-    printf("Lecture\n");
+    printf("Etape : Lecture\n");
     memset (buffer, '\0', sizeof (buffer));
 
     do_read(new_socket,buffer);
-    printf("Le message est: %s\n",buffer);
+    printf("Le message reçu est: %s\n",buffer);
 
+
+      //clean up client socket--------------------------------------------------
+      if(strcmp(buffer, "/quit") == 0 ){
+        printf("Fermeture socket client\n");
+        close_socket(new_socket);
+        break;
+      }
 
     //we write back to the client---------------------------------------------
-    printf("Ecriture\n");
+    printf("Etape : Ecriture\n");
     do_write(new_socket,buffer);
 
 
-    //clean up client socket--------------------------------------------------
-    if(strcmp(buffer, "/quit") == 0 ){
-      printf("Fermeture socket client\n");
-      close_socket(new_socket);
-      break;
-    }
 
   }
 

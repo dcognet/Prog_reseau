@@ -2,10 +2,11 @@
 #include <unistd.h>
 #include <stdio.h>
 #include <string.h>
-
+#include <netinet/in.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netdb.h>
+
 
 // Fonctions -------------------------------------------------------------------
 
@@ -36,7 +37,6 @@ int do_socket(int domain, int type, int protocol) {
 void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* host) {
 
   int portno;
-  int iphost;
 
   //clean the serv_add structure
   memset(serv_addr,'\0',sizeof(serv_addr));
@@ -44,13 +44,11 @@ void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* h
   //cast the port from a string to an int
   portno = atoi(port);
 
-  iphost=inet_addr(host);
-
   //internet family protocol
   serv_addr->sin_family = AF_INET;
 
-  //we bind to any ip form the host
-    serv_addr->sin_addr.s_addr = htonl(iphost);
+  //
+  inet_aton(host,&(serv_addr->sin_addr));
 
   //we bind on the tcp port specified
   serv_addr->sin_port = htons(portno);
@@ -101,46 +99,47 @@ int main(int argc,char** argv){
 
 
     //get the socket--------------------------------------------------------------
-    printf("Création socket\n");
+    printf("Etape : Création socket\n");
     int socket = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
 
     //init the serv_add structure-------------------------------------------------
-    printf("Informations serveur\n");
+    printf("Etape : Informations serveur\n");
     struct sockaddr_in pointeur_serv_addr;
-    get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
+    get_addr_info(argv[2], &pointeur_serv_addr,argv[1]);
 
 
     //connect to remote socket----------------------------------------------------
-    printf("Connexion serveur\n");
+    printf("Etape : Connexion serveur\n");
     do_connect(socket,pointeur_serv_addr);
+
     while(1){
 
-
     //get user input--------------------------------------------------------------
-    printf("Lecture saisie\n");
+    printf("Etape : Lecture saisie\n");
     const char saisie[256];
     gets(saisie);
     const void* msg = saisie;
 
 
     //send message to the server--------------------------------------------------
-    printf("Envoi message utilisateur\n");
+    printf("Etape : Envoi message utilisateur\n");
     handle_client_message(socket,msg);
 
+    if(strcmp(msg, "/quit") == 0 ){
+      printf("Fermeture connexion client\n");
+      break;
+    }
 
     //read what the client has to say---------------------------------------------
-    printf("Lecture message initial\n");
+    printf("Etape : Lecture du message reçu\n");
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);
 
 
     //connexion end---------------------------------------------------------------
-    if(strcmp(buffer, "/quit") == 0 ){
-      printf("Fermeture connexion client\n");
-      break;
-    }
+
 
   }
 
