@@ -148,6 +148,7 @@ int main(int argc,char** argv){
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);
 
+
   }
 
   //close socket----------------------------------------------------------------
