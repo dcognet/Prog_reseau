@@ -21,4 +21,8 @@ sys/socket.h
 -
 netinet/in.h
 -
+poll.h
+-
+signal.h
+-
 

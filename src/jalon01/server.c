@@ -5,6 +5,11 @@
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <poll.h>
+#include <signal.h>
+
+
+
 
 //Fonctions---------------------------------------------------------------------
 
@@ -155,39 +160,84 @@ int main(int argc, char** argv)
   printf("Etape : Ecoute\n");
   listen_client(socket,20);
 
+  int nb_co=1;
+  int event_fd;
+  struct pollfd fds[21];
+  fds[0].fd=socket;
+  fds[0].events=POLLIN;
+
+
+while(1){
+
+  while(1){
+
+  //accept connection from client-------------------------------------------
+  printf("Etape : Acceptation\n");
+
+for (int i = 0; i < nb_co; i++){
+  printf("%i\n",fds[i].fd );
+}
+
+  event_fd=poll(fds,nb_co,-1);
+  printf("fd events %i\n",event_fd);
+
+for (int i = 1; i <= nb_co; i++) {
+  printf("soke %i\n",socket);
+
+  printf("%i\n",i);
+    if(fds[0].revents==POLLIN){
+            printf("%i\n",i);
+            printf("dadada\n");
+            struct sockaddr_in pointeur_host_addr;
+            int new_socket = do_accept(socket,pointeur_host_addr);
+            fds[i].fd=new_socket;
+            fds[0].revents=POLLOUT;
+            fds[i].revents=POLLIN;
+            nb_co++;
+
+
+
+    }
+    else
+        {
+
+          if(fds[i].revents==POLLIN){
+
+            printf("dddd\n");
+
+            //read what the client has to say------------------------------------------
+            printf("Etape : Lecture\n");
+            memset (buffer, '\0', sizeof (buffer));
+
+            do_read(fds[i].fd,buffer);
+            printf("Le message reçu est: %s\n",buffer);
+
+
+              //clean up client socket-------------------------------------------------
+              if(strcmp(buffer, "/quit") == 0 ){
+                printf("Fermeture socket client\n");
+                close_socket(fds[i].fd);
+                break;
+              }
+
+            //we write back to the client---------------------------------------------
+            printf("Etape : Ecriture\n");
+            do_write(fds[i].fd,buffer);
+          }
+
+
+
+ }
+
+
+}
+}
 
 
 
 
-    //accept connection from client-------------------------------------------
-    printf("Etape : Acceptation\n");
-    struct sockaddr_in pointeur_host_addr;
-    int new_socket = do_accept(socket,pointeur_host_addr);
-
-  for (;;){
-
-    //read what the client has to say-----------------------------------------
-    printf("Etape : Lecture\n");
-    memset (buffer, '\0', sizeof (buffer));
-
-    do_read(new_socket,buffer);
-    printf("Le message reçu est: %s\n",buffer);
 
 
-      //clean up client socket--------------------------------------------------
-      if(strcmp(buffer, "/quit") == 0 ){
-        printf("Fermeture socket client\n");
-        close_socket(new_socket);
-        break;
-      }
-
-    //we write back to the client---------------------------------------------
-    printf("Etape : Ecriture\n");
-    do_write(new_socket,buffer);
-
-
-
-  }
 
 
   //clean up server socket------------------------------------------------------
@@ -195,5 +245,7 @@ int main(int argc, char** argv)
   close_socket(socket);
 
 
+
   return 0;
+}
 }

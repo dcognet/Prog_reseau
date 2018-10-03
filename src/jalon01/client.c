@@ -78,7 +78,7 @@ void do_connect(int socket, struct sockaddr_in pointeur_serv_addr){
 
 
 void handle_client_message(int socket, const void *message){
-  int i = send(socket,message, strlen(message),0);
+  int i = send(socket,message,strlen(message),0);
   if(i == -1){
     error("ERROR envoi message server");
   }
@@ -135,6 +135,8 @@ int main(int argc,char** argv){
     printf("Etape : Envoi message utilisateur\n");
     handle_client_message(socket,msg);
 
+
+    //connexion end---------------------------------------------------------------
     if(strcmp(msg, "/quit") == 0 ){
       printf("Fermeture connexion client\n");
       break;
@@ -146,10 +148,6 @@ int main(int argc,char** argv){
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);
 
-
-    //connexion end---------------------------------------------------------------
-
-
   }
 
   //close socket----------------------------------------------------------------
@@ -157,6 +155,5 @@ int main(int argc,char** argv){
   close(socket);
 
   return 0;
-
 
 }
