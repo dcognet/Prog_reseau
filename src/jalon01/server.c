@@ -162,7 +162,8 @@ int main(int argc, char** argv)
 
   int nb_co=1;
   int event_fd;
-  struct pollfd fds[21];
+  struct pollfd fds[200];
+  memset(fds,-1,sizeof(fds));
   fds[0].fd=socket;
   fds[0].events=POLLIN;
 
@@ -178,7 +179,7 @@ for (int i = 0; i < nb_co; i++){
   printf("%i\n",fds[i].fd );
 }
 
-  event_fd=poll(fds,nb_co,-1);
+  event_fd=poll(fds,21,-1);
   printf("fd events %i\n",event_fd);
 
 for (int i = 1; i <= nb_co; i++) {
@@ -186,15 +187,17 @@ for (int i = 1; i <= nb_co; i++) {
 
   printf("%i\n",i);
     if(fds[0].revents==POLLIN){
-            printf("%i\n",i);
-            printf("dadada\n");
-            struct sockaddr_in pointeur_host_addr;
-            int new_socket = do_accept(socket,pointeur_host_addr);
-            fds[i].fd=new_socket;
-            fds[0].revents=POLLOUT;
-            fds[i].revents=POLLIN;
-            nb_co++;
-
+      if(fds[i].fd==-1){
+        printf("%i\n",i);
+        printf("dadada\n");
+        struct sockaddr_in pointeur_host_addr;
+        int new_socket = do_accept(socket,pointeur_host_addr);
+        fds[i].fd=new_socket;
+        fds[0].revents=POLLOUT;
+        fds[i].events=POLLIN;
+        fds[i].revents=POLLIN;
+        nb_co++;
+      }
 
 
     }
