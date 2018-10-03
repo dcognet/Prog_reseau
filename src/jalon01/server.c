@@ -161,7 +161,7 @@ int main(int argc, char** argv)
   listen_client(socket,20);
 
   int nb_co=0;
-  int nb_co_max=1;
+  int nb_co_max=3;
   int event_fd;
   struct pollfd fds[200];
   memset(fds,-1,sizeof(fds));
@@ -172,36 +172,41 @@ int main(int argc, char** argv)
 
   while(1){
 
-    //accept connection from client-------------------------------------------
-    printf("Etape : Acceptation\n");
+    // wait for an activity
     event_fd=poll(fds,21,-1);
-    printf("nb co %i\n",nb_co);
 
 
     for (int i = 1; i <= 20; i++) {
         if(fds[0].revents==POLLIN){
           if(fds[i].fd==-1){
+
+            //accept connection from client-------------------------------------------
+
             struct sockaddr_in pointeur_host_addr;
             int new_socket = do_accept(socket,pointeur_host_addr);
+
+
             if(nb_co>=nb_co_max){
+              // refuse the connection if there is too much client
+              printf("Acceptation d'un nouveau client impossibla car trop de connection\n");
               do_write(new_socket,"Server cannot accept incoming connections anymore. Try again later.");
               close_socket(new_socket);
               break;
             }
+            printf("Acceptation d'un nouveau client\n");
             fds[i].fd=new_socket;
             fds[i].events=POLLIN;
             nb_co++;
+            printf("nombre de connection = %i\n",nb_co);
+
             break;
           }
         }
         else
             {
-
               if(fds[i].revents==POLLIN){
                 //read what the client has to say------------------------------------------
-                printf("Etape : Lecture\n");
                 memset (buffer, '\0', sizeof (buffer));
-
                 do_read(fds[i].fd,buffer);
                 printf("Le message reçu est: %s\n",buffer);
 
@@ -210,12 +215,12 @@ int main(int argc, char** argv)
                     printf("Fermeture socket client\n");
                     close_socket(fds[i].fd);
                     fds[i].fd=-1;
+                    fds[i].events=-1;
                     nb_co--;
                     break;
                   }
 
                 //we write back to the client---------------------------------------------
-                printf("Etape : Ecriture\n");
                 do_write(fds[i].fd,buffer);
               }
             }
