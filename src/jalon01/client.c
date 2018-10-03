@@ -119,20 +119,20 @@ int main(int argc,char** argv){
 
 
     //connect to remote socket----------------------------------------------------
-    printf("Etape : Connexion serveur\n");
+    printf("Connexion au serveur\n");
     do_connect(socket,pointeur_serv_addr);
 
     while(1){
 
+      printf("[Server] : please logon with /nick <your pseudo>\n");
+
     //get user input--------------------------------------------------------------
-    printf("Etape : Lecture saisie\n");
     const char saisie[256];
     gets(saisie);
     const void* msg = saisie;
 
 
     //send message to the server--------------------------------------------------
-    printf("Etape : Envoi message utilisateur\n");
     handle_client_message(socket,msg);
 
 
@@ -143,7 +143,6 @@ int main(int argc,char** argv){
     }
 
     //read what the client has to say---------------------------------------------
-    printf("Etape : Lecture du message reçu\n");
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
     printf("Le message reçu est: %s\n",buffer);

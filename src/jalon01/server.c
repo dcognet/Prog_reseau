@@ -185,7 +185,6 @@ int main(int argc, char** argv)
             struct sockaddr_in pointeur_host_addr;
             int new_socket = do_accept(socket,pointeur_host_addr);
 
-
             if(nb_co>=nb_co_max){
               // refuse the connection if there is too much client
               printf("Acceptation d'un nouveau client impossibla car trop de connection\n");
@@ -193,7 +192,7 @@ int main(int argc, char** argv)
               close_socket(new_socket);
               break;
             }
-            printf("Acceptation d'un nouveau client\n");
+            printf("Acceptation d'un nouveau client : client n)%i\n",i);
             fds[i].fd=new_socket;
             fds[i].events=POLLIN;
             nb_co++;
@@ -219,6 +218,14 @@ int main(int argc, char** argv)
                     nb_co--;
                     break;
                   }
+
+                  if(strncmp(buffer, "/nick ",5) == 0 ){
+                    printf("coucou\n");
+
+                    break;
+                  }
+
+
 
                 //we write back to the client---------------------------------------------
                 do_write(fds[i].fd,buffer);
