@@ -11,8 +11,58 @@
 
 
 
+struct user{
+  char pseudo[255];
+  struct user *next;
+};
+
+struct user *create_user(char pseudo[]){
+  struct user *new_list;
+  new_list=malloc(sizeof(struct user));
+  strcpy(new_list->pseudo,pseudo);
+  new_list->next=NULL;
+}
+
+int user_list_size(struct user *user_list){
+  if (user_list==NULL){
+  return 0;
+}
+int size=0;
+while (user_list!=NULL){
+  size++;
+  user_list=user_list->next;
+}
+return size;
+}
+
+
+struct user *user_add(struct user *user,char pseudo[]){
+
+
+	struct user *new_user=malloc(sizeof(struct user));
+
+	new_user=create_user(pseudo);
+	if (user_list_size ==0){
+		new_user->next=user;
+		return new_user;
+	}
+	else {
+		struct user *temp;
+		temp=user;
+		while(temp->next!=NULL){
+			temp=temp->next;
+		}
+		temp->next=new_user;
+
+		return user;
+	}
+}
 //Fonctions---------------------------------------------------------------------
 
+
+
+
+//---------------------------------------
 void error(const char *msg)
 {
   perror(msg);
@@ -167,6 +217,9 @@ int main(int argc, char** argv)
   memset(fds,-1,sizeof(fds));
   fds[0].fd=socket;
   fds[0].events=POLLIN;
+
+  struct user *user_list=malloc(sizeof(struct user));
+
 
 
 
