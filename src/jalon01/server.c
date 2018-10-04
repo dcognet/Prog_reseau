@@ -219,8 +219,21 @@ int main(int argc, char** argv)
                     break;
                   }
 
-                  if(strncmp(buffer, "/nick ",5) == 0 ){
-                    printf("coucou\n");
+                  //idee si / alors on regarde le prochain mot
+                  if(strncmp(buffer, "/ ",1) == 0 ){
+                    int space[255];
+                    space[1]=0;
+                    while(buffer[space[1]]!=' '){
+                      space[1]=space[1]+1;
+                    }
+                    printf("coucou %i\n",i);
+                    char pseudo[255];
+                    strncpy(pseudo,buffer+space[1],10);
+                    //pread(fds[i].fd,buffer,250,i);
+                    printf("coucou%s\n",pseudo);
+                    do_write(fds[i].fd,strcat(pseudo,"Bonjour"));
+
+
 
                     break;
                   }
