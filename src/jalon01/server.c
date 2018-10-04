@@ -221,21 +221,28 @@ int main(int argc, char** argv)
 
                   //idee si / alors on regarde le prochain mot
                   if(strncmp(buffer, "/ ",1) == 0 ){
+
                     int space[255];
                     space[1]=0;
+
                     while(buffer[space[1]]!=' '){
                       space[1]=space[1]+1;
                     }
-                    printf("coucou %i\n",i);
-                    char pseudo[255];
-                    strncpy(pseudo,buffer+space[1],10);
-                    //pread(fds[i].fd,buffer,250,i);
-                    printf("coucou%s\n",pseudo);
-                    do_write(fds[i].fd,strcat(pseudo,"Bonjour"));
 
 
+                    char command[255];
+                    strncpy(command,buffer,space[1]);
+                    printf("%s\n",command);
 
-                    break;
+
+                    if(strncmp(command,"/nick",space[1])==0){
+                      char pseudo[255];
+                      char envoie[255]="Bonjour";
+                      strncpy(pseudo,buffer+space[1],10);
+                      printf("coucou%s\n",pseudo);
+                      do_write(fds[i].fd,strcat(envoie,pseudo));
+                      break;
+                    }
                   }
 
 
