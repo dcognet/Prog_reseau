@@ -51,7 +51,7 @@ struct user *user_add(struct user *user,char pseudo[]){
 
 	if (user_list_size(user) ==0){
 		new_user->next=user;
-    printf("%s\n",new_user->pseudo );
+    printf("1er user %s\n",new_user->pseudo );
 		return new_user;
 	}
 	else {
@@ -61,13 +61,26 @@ struct user *user_add(struct user *user,char pseudo[]){
 		temp=user;
 		while(temp->next!=NULL){
       printf("%s\n",temp->pseudo );
-      
-			temp=temp->next;
+      temp=temp->next;
 		}
 		temp->next=new_user;
 
 		return user;
 	}
+}
+
+int display_user_list(struct user *list_user){
+
+	if (list_user==NULL)
+	return 0;
+
+	while (list_user!=NULL){
+			 printf("%s\n",list_user->pseudo );
+       do_write(fds[i].fd,strcat(envoie,pseudo));
+		list_user=list_user->next;
+	}
+	return 1;
+
 }
 //Fonctions---------------------------------------------------------------------
 
@@ -289,25 +302,42 @@ int main(int argc, char** argv)
 
                     int space[255];
                     space[1]=0;
-
-                    while(buffer[space[1]]!=' '){
-                      space[1]=space[1]+1;
+                    int indice=0;
+                    int j=0;
+                    while (buffer[indice]!='\0') {
+                      if(buffer[indice]==' '){
+                        space[j]=indice;
+                        j++;
+                      }
+                      indice++;
                     }
+                    // while(buffer[space[1]]!=' '){
+                    //   space[1]=space[1]+1;
+                    // }
 
 
                     char command[255];
-                    strncpy(command,buffer,space[1]);
+                    strncpy(command,buffer,space[0]);
                     printf("%s\n",command);
 
-
-                    if(strncmp(command,"/nick",space[1])==0){
+// command /nick
+                    if(strncmp(command,"/nick",space[0])==0){
                       char pseudo[255];
-                      char envoie[255]="Bonjour";
-                      strncpy(pseudo,buffer+space[1],10);
+                      char envoie[255]="Bonjour ";
+                      strncpy(pseudo,buffer+space[0]+1,10);
                       user_list=user_add(user_list,pseudo);
-
-                      printf("coucou%s\n",pseudo);
+                      printf("coucou %s\n",pseudo);
                       do_write(fds[i].fd,strcat(envoie,pseudo));
+                      display_user_list(user_list);
+                      break;
+                    }
+
+            // command /who
+
+                    if(strncmp(command,"/who",space[0])==0){
+                      char pseudo[255];
+                      char envoie[255]="Voici la liste des utilisateur actuellement en ligne\n";
+                      display_user_list(user_list);
                       break;
                     }
                   }
