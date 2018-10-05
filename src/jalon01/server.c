@@ -17,39 +17,51 @@ struct user{
 };
 
 struct user *create_user(char pseudo[]){
-  struct user *new_list;
-  new_list=malloc(sizeof(struct user));
-  strcpy(new_list->pseudo,pseudo);
-  new_list->next=NULL;
+  struct user *new_user;
+  new_user=malloc(sizeof(struct user));
+  strcpy(new_user->pseudo,pseudo);
+  new_user->next=NULL;
+  return new_user;
 }
 
 int user_list_size(struct user *user_list){
   if (user_list==NULL){
+    printf("taille nul\n" );
+
   return 0;
 }
 int size=0;
 while (user_list!=NULL){
+
   size++;
   user_list=user_list->next;
+  printf("%i\n",size );
+
 }
+
 return size;
 }
 
 
 struct user *user_add(struct user *user,char pseudo[]){
 
-
 	struct user *new_user=malloc(sizeof(struct user));
 
 	new_user=create_user(pseudo);
-	if (user_list_size ==0){
+
+	if (user_list_size(user) ==0){
 		new_user->next=user;
+    printf("%s\n",new_user->pseudo );
 		return new_user;
 	}
 	else {
+    printf("daaaaa\n");
+
 		struct user *temp;
 		temp=user;
 		while(temp->next!=NULL){
+      printf("%s\n",temp->pseudo );
+      
 			temp=temp->next;
 		}
 		temp->next=new_user;
@@ -218,7 +230,7 @@ int main(int argc, char** argv)
   fds[0].fd=socket;
   fds[0].events=POLLIN;
 
-  struct user *user_list=malloc(sizeof(struct user));
+  struct user *user_list=NULL;
 
 
 
@@ -292,6 +304,8 @@ int main(int argc, char** argv)
                       char pseudo[255];
                       char envoie[255]="Bonjour";
                       strncpy(pseudo,buffer+space[1],10);
+                      user_list=user_add(user_list,pseudo);
+
                       printf("coucou%s\n",pseudo);
                       do_write(fds[i].fd,strcat(envoie,pseudo));
                       break;
