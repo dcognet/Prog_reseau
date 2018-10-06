@@ -120,19 +120,24 @@ struct user *delete_user(struct user *user_list,int fd){
 	return NULL;
   struct user *temp;
   temp=user_list;
+  struct user *temp2;
+  temp2=user_list;
 
   while(temp->next!=NULL){
     if(temp->fd==fd){
-      printf("daaddadaa\n" );
-
-      temp->next=(temp->next)->next;
-
-      return user_list;
+      struct user *sauv=temp->next;
+      free(temp);
+      break;
     }
     temp=temp->next;
+    }
 
-  }
-    //display_user_list(user_list,fd);
+// while (temp2->next!=temp) {
+//   temp2=temp2->next;
+// }
+// temp2->next=temp;
+
+
 		return user_list;
 
 }
@@ -360,21 +365,18 @@ int main(int argc, char** argv)
                   //idee si / alors on regarde le prochain mot
                   if(strncmp(buffer, "/ ",1) == 0 ){
 
-                    int space[255];
-                    space[0]=0;
-                    int indice=0;
-                    int j=0;
-                    //permet de trouver les espaces dans la ligne
-                    while (buffer[indice]!='\0') {
-                      if(buffer[indice]==' '){
-                        space[j]=indice;
-                        j++;
-                      }
-                      indice++;
-                    }
-
-                    printf("%i\n",space[0] );
-
+                    // int space[255];
+                    // space[0]=0;
+                    // int indice=0;
+                    // int j=0;
+                    // //permet de trouver les espaces dans la ligne
+                    // while (buffer[indice]!='\0') {
+                    //   if(buffer[indice]==' '){
+                    //     space[j]=indice;
+                    //     j++;
+                    //   }
+                    //   indice++;
+                    // }
 
                     // char command[255];
                     // memset(command,'\0',sizeof(command));
@@ -385,7 +387,7 @@ int main(int argc, char** argv)
                     if(strncmp(buffer,"/nick",5)==0){
                       char pseudo[255]="";
                       char envoie[255]="Bonjour ";
-                      strncpy(pseudo,buffer+space[0]+1,10);
+                      strncpy(pseudo,buffer+6,10);
                       user_list=user_add(user_list,pseudo,fds[i].fd);
                       user_pseudo(user_list,fds[i].fd);
                       break;
