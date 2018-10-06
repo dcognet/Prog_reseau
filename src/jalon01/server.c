@@ -114,6 +114,7 @@ int user_pseudo(struct user *user_list,int fd){
 
 
 struct user *delete_user(struct user *user_list,int fd){
+  printf("opssps\n" );
 
 	if (user_list==NULL)
 	return NULL;
@@ -122,6 +123,8 @@ struct user *delete_user(struct user *user_list,int fd){
 
   while(temp->next!=NULL){
     if(temp->fd==fd){
+      printf("daaddadaa\n" );
+
       temp->next=(temp->next)->next;
 
       return user_list;
@@ -129,7 +132,7 @@ struct user *delete_user(struct user *user_list,int fd){
     temp=temp->next;
 
   }
-
+    //display_user_list(user_list,fd);
 		return user_list;
 
 }
@@ -345,11 +348,12 @@ int main(int argc, char** argv)
                   //clean up client socket-------------------------------------------------
                   if(strcmp(buffer, "/quit") == 0 ){
                     printf("Fermeture socket client\n");
+                    user_list=delete_user(user_list,fds[i].fd);
+
                     close_socket(fds[i].fd);
                     fds[i].fd=-1;
                     fds[i].events=-1;
                     nb_co--;
-                    user_list=delete_user(user_list,fds[i].fd);
                     break;
                   }
 
