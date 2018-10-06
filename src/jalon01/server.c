@@ -13,13 +13,15 @@
 
 struct user{
   char pseudo[255];
+  int fd;
   struct user *next;
 };
 
-struct user *create_user(char pseudo[]){
+struct user *create_user(char pseudo[],int fd){
   struct user *new_user;
   new_user=malloc(sizeof(struct user));
   strcpy(new_user->pseudo,pseudo);
+  new_user->fd=fd;
   new_user->next=NULL;
   return new_user;
 }
@@ -43,11 +45,11 @@ return size;
 }
 
 
-struct user *user_add(struct user *user,char pseudo[]){
+struct user *user_add(struct user *user,char pseudo[],int fd){
 
 	struct user *new_user=malloc(sizeof(struct user));
 
-	new_user=create_user(pseudo);
+	new_user=create_user(pseudo,fd);
 
 	if (user_list_size(user) ==0){
 		new_user->next=user;
@@ -69,16 +71,18 @@ struct user *user_add(struct user *user,char pseudo[]){
 	}
 }
 
-int display_user_list(struct user *list_user){
-
+int display_user_list(struct user *list_user,int fd){
+  char buffer[255]=" [Server] : Online users are :";
 	if (list_user==NULL)
 	return 0;
 
 	while (list_user!=NULL){
-			 printf("%s\n",list_user->pseudo );
-       do_write(fds[i].fd,strcat(envoie,pseudo));
+      char pseudo[255]="\n -";
+       strcat(pseudo,list_user->pseudo);
+       strcat(buffer,pseudo);
 		list_user=list_user->next;
 	}
+  do_write(fd,buffer);
 	return 1;
 
 }
@@ -275,7 +279,9 @@ int main(int argc, char** argv)
             fds[i].events=POLLIN;
             nb_co++;
             printf("nombre de connection = %i\n",nb_co);
-
+            memset (buffer, '\0', sizeof (buffer));
+            strcpy(buffer,"[Server] : please logon with /nick <your pseudo>");
+            do_write(fds[i].fd,buffer);
             break;
           }
         }
@@ -301,7 +307,7 @@ int main(int argc, char** argv)
                   if(strncmp(buffer, "/ ",1) == 0 ){
 
                     int space[255];
-                    space[1]=0;
+                    space[0]=0;
                     int indice=0;
                     int j=0;
                     while (buffer[indice]!='\0') {
@@ -314,30 +320,31 @@ int main(int argc, char** argv)
                     // while(buffer[space[1]]!=' '){
                     //   space[1]=space[1]+1;
                     // }
+                    printf("%i\n",space[0] );
 
 
-                    char command[255];
-                    strncpy(command,buffer,space[0]);
-                    printf("%s\n",command);
+                    // char command[255];
+                    // memset(command,'\0',sizeof(command));
+                    // strncpy(command,buffer,space[0]);
+                    // printf("%s\n",command);
 
 // command /nick
-                    if(strncmp(command,"/nick",space[0])==0){
-                      char pseudo[255];
+                    if(strncmp(buffer,"/nick",5)==0){
+                      char pseudo[255]="";
                       char envoie[255]="Bonjour ";
                       strncpy(pseudo,buffer+space[0]+1,10);
-                      user_list=user_add(user_list,pseudo);
+                      user_list=user_add(user_list,pseudo,fds[i].fd);
                       printf("coucou %s\n",pseudo);
                       do_write(fds[i].fd,strcat(envoie,pseudo));
-                      display_user_list(user_list);
                       break;
                     }
 
             // command /who
 
-                    if(strncmp(command,"/who",space[0])==0){
-                      char pseudo[255];
+                    if(strcmp(buffer,"/who")==0){
+                      char pseudo[255]="";
                       char envoie[255]="Voici la liste des utilisateur actuellement en ligne\n";
-                      display_user_list(user_list);
+                      display_user_list(user_list,fds[i].fd);
                       break;
                     }
                   }

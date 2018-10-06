@@ -121,10 +121,11 @@ int main(int argc,char** argv){
     //connect to remote socket----------------------------------------------------
     printf("Connexion au serveur\n");
     do_connect(socket,pointeur_serv_addr);
+    do_read(socket,buffer);
+    printf("%s\n",buffer);
 
     while(1){
 
-      printf("[Server] : please logon with /nick <your pseudo>\n");
 
     //get user input--------------------------------------------------------------
     const char saisie[256];
