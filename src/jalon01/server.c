@@ -44,11 +44,10 @@ while (user_list!=NULL){
 return size;
 }
 
-
+// add une new user---------------------------------------------------------
 struct user *user_add(struct user *user,char pseudo[],int fd){
 
 	struct user *new_user=malloc(sizeof(struct user));
-
 	new_user=create_user(pseudo,fd);
 
 	if (user_list_size(user) ==0){
@@ -57,19 +56,29 @@ struct user *user_add(struct user *user,char pseudo[],int fd){
 		return new_user;
 	}
 	else {
-    printf("daaaaa\n");
-
 		struct user *temp;
 		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      return user;
+    }
 		while(temp->next!=NULL){
-      printf("%s\n",temp->pseudo );
+
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+        return user;
+      }
       temp=temp->next;
+
 		}
 		temp->next=new_user;
-
 		return user;
 	}
 }
+
+
+
+//display the list of user ----------------------------------------
 
 int display_user_list(struct user *list_user,int fd){
   char buffer[255]=" [Server] : Online users are :";
@@ -86,6 +95,46 @@ int display_user_list(struct user *list_user,int fd){
 	return 1;
 
 }
+
+int user_pseudo(struct user *user_list,int fd){
+  char envoie[255]="[Serveur] : Welcome on the chat : ";
+  if (user_list==NULL)
+  return 0;
+
+  while (user_list!=NULL){
+    if(user_list->fd==fd){
+      do_write(fd,strcat(envoie,user_list->pseudo));
+      return 1;
+    }
+    user_list=user_list->next;
+  }
+  return 1;
+
+}
+
+
+struct user *delete_user(struct user *user_list,int fd){
+
+	if (user_list==NULL)
+	return NULL;
+  struct user *temp;
+  temp=user_list;
+
+  while(temp->next!=NULL){
+    if(temp->fd==fd){
+      temp->next=(temp->next)->next;
+
+      return user_list;
+    }
+    temp=temp->next;
+
+  }
+
+		return user_list;
+
+}
+
+
 //Fonctions---------------------------------------------------------------------
 
 
@@ -300,6 +349,7 @@ int main(int argc, char** argv)
                     fds[i].fd=-1;
                     fds[i].events=-1;
                     nb_co--;
+                    user_list=delete_user(user_list,fds[i].fd);
                     break;
                   }
 
@@ -310,6 +360,7 @@ int main(int argc, char** argv)
                     space[0]=0;
                     int indice=0;
                     int j=0;
+                    //permet de trouver les espaces dans la ligne
                     while (buffer[indice]!='\0') {
                       if(buffer[indice]==' '){
                         space[j]=indice;
@@ -317,9 +368,7 @@ int main(int argc, char** argv)
                       }
                       indice++;
                     }
-                    // while(buffer[space[1]]!=' '){
-                    //   space[1]=space[1]+1;
-                    // }
+
                     printf("%i\n",space[0] );
 
 
@@ -334,8 +383,7 @@ int main(int argc, char** argv)
                       char envoie[255]="Bonjour ";
                       strncpy(pseudo,buffer+space[0]+1,10);
                       user_list=user_add(user_list,pseudo,fds[i].fd);
-                      printf("coucou %s\n",pseudo);
-                      do_write(fds[i].fd,strcat(envoie,pseudo));
+                      user_pseudo(user_list,fds[i].fd);
                       break;
                     }
 
@@ -344,6 +392,7 @@ int main(int argc, char** argv)
                     if(strcmp(buffer,"/who")==0){
                       char pseudo[255]="";
                       char envoie[255]="Voici la liste des utilisateur actuellement en ligne\n";
+                      printf("%s\n",envoie );
                       display_user_list(user_list,fds[i].fd);
                       break;
                     }

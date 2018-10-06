@@ -146,7 +146,8 @@ int main(int argc,char** argv){
     //read what the client has to say---------------------------------------------
     memset (buffer, '\0', sizeof (buffer));
     do_read(socket,buffer);
-    printf("Le message reçu est: %s\n",buffer);
+    printf("%s\n",buffer);
+    fflush(stdout);
 
 
   }
