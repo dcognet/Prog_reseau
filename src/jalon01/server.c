@@ -10,12 +10,14 @@
 
 
 
-
+// struct user------------------------------------------
 struct user{
   char pseudo[255];
   int fd;
   struct user *next;
 };
+
+// create a new user------------------------------------------
 
 struct user *create_user(char pseudo[],int fd){
   struct user *new_user;
@@ -25,6 +27,8 @@ struct user *create_user(char pseudo[],int fd){
   new_user->next=NULL;
   return new_user;
 }
+
+// return the size of the user list------------------------------------------
 
 int user_list_size(struct user *user_list){
   if (user_list==NULL){
@@ -79,7 +83,7 @@ struct user *user_add(struct user *user,char pseudo[],int fd){
 }
 
 
-// add une new user---------------------------------------------------------
+// change the pseudo of an user---------------------------------------------------------
 struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
 
 		struct user *temp;
@@ -124,6 +128,8 @@ int display_user_list(struct user *list_user,int fd){
 
 
 
+// return the user pseudo------------------------------------------
+
 
 char *user_pseudo(struct user *user_list,int fd){
   if (user_list==NULL)
@@ -139,6 +145,7 @@ char *user_pseudo(struct user *user_list,int fd){
 
 }
 
+// delete an user------------------------------------------
 
 struct user *delete_user(struct user *user_list,int fd){
   printf("opssps\n" );
@@ -386,7 +393,7 @@ int main(int argc, char** argv)
                     break;
                   }
 
-                  //idee si / alors on regarde le prochain mot
+                  // si / alors on regarde le prochain mot
                   if(strncmp(buffer, "/ ",1) == 0 ){
 
                     // int space[255];
