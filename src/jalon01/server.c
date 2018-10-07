@@ -60,13 +60,15 @@ struct user *user_add(struct user *user,char pseudo[],int fd){
 		temp=user;
     if(temp->fd==fd){
       printf("deja indentifié\n");
-      return user;
+      strcpy(temp->pseudo,pseudo);
+      return temp;
     }
 		while(temp->next!=NULL){
 
       if(temp->fd==fd){
         printf("deja indentifié\n" );
-        return user;
+
+        return temp;
       }
       temp=temp->next;
 
@@ -75,6 +77,30 @@ struct user *user_add(struct user *user,char pseudo[],int fd){
 		return user;
 	}
 }
+
+
+// add une new user---------------------------------------------------------
+struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
+
+		struct user *temp;
+		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      strcpy(temp->pseudo,pseudo);
+    }
+		while(temp->next!=NULL){
+
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+        strcpy(temp->pseudo,pseudo);
+
+      }
+      temp=temp->next;
+
+		}
+
+  	return user;
+	}
 
 
 
@@ -96,19 +122,20 @@ int display_user_list(struct user *list_user,int fd){
 
 }
 
-int user_pseudo(struct user *user_list,int fd){
-  char envoie[255]="[Serveur] : Welcome on the chat : ";
+
+
+
+char *user_pseudo(struct user *user_list,int fd){
   if (user_list==NULL)
   return 0;
 
   while (user_list!=NULL){
     if(user_list->fd==fd){
-      do_write(fd,strcat(envoie,user_list->pseudo));
-      return 1;
+      return user_list->pseudo;
     }
     user_list=user_list->next;
   }
-  return 1;
+  return 0;
 
 }
 
@@ -386,10 +413,14 @@ int main(int argc, char** argv)
 // command /nick
                     if(strncmp(buffer,"/nick",5)==0){
                       char pseudo[255]="";
-                      char envoie[255]="Bonjour ";
+                      char envoie[255]="[Serveur] : Welcome on the chat : ";
                       strncpy(pseudo,buffer+6,10);
-                      user_list=user_add(user_list,pseudo,fds[i].fd);
-                      user_pseudo(user_list,fds[i].fd);
+                      if (user_pseudo(user_list,fds[i].fd)==0)
+                        user_list=user_add(user_list,pseudo,fds[i].fd);
+                        else
+                        user_list=user_change_pseudo(user_list,pseudo,fds[i].fd);
+                      do_write(fds[i].fd,strcat(envoie,user_pseudo(user_list,fds[i].fd)));
+
                       break;
                     }
 
