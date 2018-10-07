@@ -147,25 +147,22 @@ struct user *delete_user(struct user *user_list,int fd){
 	return NULL;
   struct user *temp;
   temp=user_list;
-  struct user *temp2;
-  temp2=user_list;
+  if(temp->fd==fd){
+    return temp->next;
+  }
+
 
   while(temp->next!=NULL){
-    if(temp->fd==fd){
-      struct user *sauv=temp->next;
-      free(temp);
+    if ((temp->next)->next==NULL && (temp->next)->fd==fd) {
+      temp->next=NULL;
       break;
     }
-    temp=temp->next;
+    if((temp->next)->fd==fd){
+      temp->next=(temp->next)->next;
     }
-
-// while (temp2->next!=temp) {
-//   temp2=temp2->next;
-// }
-// temp2->next=temp;
-
-
-		return user_list;
+    temp=temp->next;
+  }
+  return user_list;
 
 }
 
