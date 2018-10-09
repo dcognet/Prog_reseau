@@ -449,10 +449,13 @@ int main(int argc, char** argv)
                       display_user_list(user_list,fds[i].fd);
                       break;
                     }
+                    if(strncmp(buffer,"/msgall",7)==0){
+                      broadcast(fds[i].fd,buffer+8,user_list);
+                      break;
+                    }
                   }
 
 
-                broadcast(fds[i].fd,buffer,user_list);
 
                 //we write back to the client---------------------------------------------
                 //do_write(fds[i].fd,buffer);
