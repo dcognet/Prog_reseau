@@ -305,6 +305,18 @@ void broadcast(int sender_fd, const void *buffer, struct user *list_user){
   return 1;
 }
 
+void unicast(int sender_fd, const void *buffer, struct user *list_user, char receiver_pseudo[]){
+  if (list_user==NULL)
+  return 0;
+
+  while (list_user!=NULL){
+    if(receiver_pseudo==list_user->pseudo){
+      do_write(list_user->fd,buffer);
+    }
+    list_user=list_user->next;
+  }
+  return 1;
+}
 
 //Corps-------------------------------------------------------------------------
 
@@ -429,7 +441,7 @@ int main(int argc, char** argv)
 // command /nick
                     if(strncmp(buffer,"/nick",5)==0){
                       char pseudo[255]="";
-                      char envoie[255]="[Serveur] : Welcome on the chat : ";
+                      char envoie[255]="server|Welcome on the chat : ";
                       strncpy(pseudo,buffer+6,10);
                       if (user_pseudo(user_list,fds[i].fd)==0)
                         user_list=user_add(user_list,pseudo,fds[i].fd);
@@ -453,12 +465,19 @@ int main(int argc, char** argv)
                       broadcast(fds[i].fd,buffer+8,user_list);
                       break;
                     }
+                    // if(strncmp(buffer,"/msg",4)==0){
+                    //
+                    //   unicast(fds[i].fd,buffer+4,user_list,);
+                    //   break;
+                    // }
                   }
 
 
 
                 //we write back to the client---------------------------------------------
-                //do_write(fds[i].fd,buffer);
+                char pseudo[255]="";
+                strcat(pseudo,buffer);
+                do_write(fds[i].fd,pse);
               }
             }
           }

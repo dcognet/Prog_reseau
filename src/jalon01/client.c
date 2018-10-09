@@ -126,11 +126,13 @@ int main(int argc,char** argv){
 
 
     pid_t pid=fork();
+    char pseudo[20];
+    int i=0;
 
     while(1){
 
 
-
+// idée : les n 1ERE case du message sont pour dire qui envoie
 
 //send message to the server--------------------------------------------------
 
@@ -138,7 +140,13 @@ int main(int argc,char** argv){
             //read what the client has to say---------------------------------------------
             memset (buffer, '\0', sizeof (buffer));
             do_read(socket,buffer);
-            fprintf(stdout,"%s\n",buffer);
+            memset (pseudo, '\0', sizeof (pseudo));
+            i=0;
+            while(buffer[i]!='|'){
+              i++;
+            }
+            strncpy(pseudo,buffer,i);
+            fprintf(stdout,"[%s] %s\n",pseudo,buffer+i+1);
     }
     else{
       //get user input--------------------------------------------------------------
