@@ -132,8 +132,9 @@ int main(int argc,char** argv){
     gets(saisie);
     const void* msg = saisie;
 
+//send message to the server--------------------------------------------------
 
-    //send message to the server--------------------------------------------------
+
     handle_client_message(socket,msg);
 
 

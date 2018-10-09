@@ -8,172 +8,6 @@
 #include <poll.h>
 #include <signal.h>
 
-
-
-// struct user------------------------------------------
-struct user{
-  char pseudo[255];
-  int fd;
-  struct user *next;
-};
-
-// create a new user------------------------------------------
-
-struct user *create_user(char pseudo[],int fd){
-  struct user *new_user;
-  new_user=malloc(sizeof(struct user));
-  strcpy(new_user->pseudo,pseudo);
-  new_user->fd=fd;
-  new_user->next=NULL;
-  return new_user;
-}
-
-// return the size of the user list------------------------------------------
-
-int user_list_size(struct user *user_list){
-  if (user_list==NULL){
-    printf("taille nul\n" );
-
-  return 0;
-}
-int size=0;
-while (user_list!=NULL){
-
-  size++;
-  user_list=user_list->next;
-  printf("%i\n",size );
-
-}
-
-return size;
-}
-
-// add une new user---------------------------------------------------------
-struct user *user_add(struct user *user,char pseudo[],int fd){
-
-	struct user *new_user=malloc(sizeof(struct user));
-	new_user=create_user(pseudo,fd);
-
-	if (user_list_size(user) ==0){
-		new_user->next=user;
-    printf("1er user %s\n",new_user->pseudo );
-		return new_user;
-	}
-	else {
-		struct user *temp;
-		temp=user;
-    if(temp->fd==fd){
-      printf("deja indentifié\n");
-      strcpy(temp->pseudo,pseudo);
-      return temp;
-    }
-		while(temp->next!=NULL){
-
-      if(temp->fd==fd){
-        printf("deja indentifié\n" );
-
-        return temp;
-      }
-      temp=temp->next;
-
-		}
-		temp->next=new_user;
-		return user;
-	}
-}
-
-
-// change the pseudo of an user---------------------------------------------------------
-struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
-
-		struct user *temp;
-		temp=user;
-    if(temp->fd==fd){
-      printf("deja indentifié\n");
-      strcpy(temp->pseudo,pseudo);
-    }
-		while(temp->next!=NULL){
-
-      if(temp->fd==fd){
-        printf("deja indentifié\n" );
-        strcpy(temp->pseudo,pseudo);
-
-      }
-      temp=temp->next;
-
-		}
-
-  	return user;
-	}
-
-
-
-//display the list of user ----------------------------------------
-
-int display_user_list(struct user *list_user,int fd){
-  char buffer[255]=" [Server] : Online users are :";
-	if (list_user==NULL)
-	return 0;
-
-	while (list_user!=NULL){
-      char pseudo[255]="\n -";
-       strcat(pseudo,list_user->pseudo);
-       strcat(buffer,pseudo);
-		list_user=list_user->next;
-	}
-  do_write(fd,buffer);
-	return 1;
-
-}
-
-
-
-// return the user pseudo------------------------------------------
-
-
-char *user_pseudo(struct user *user_list,int fd){
-  if (user_list==NULL)
-  return 0;
-
-  while (user_list!=NULL){
-    if(user_list->fd==fd){
-      return user_list->pseudo;
-    }
-    user_list=user_list->next;
-  }
-  return 0;
-
-}
-
-// delete an user------------------------------------------
-
-struct user *delete_user(struct user *user_list,int fd){
-  printf("opssps\n" );
-
-	if (user_list==NULL)
-	return NULL;
-  struct user *temp;
-  temp=user_list;
-  if(temp->fd==fd){
-    return temp->next;
-  }
-
-
-  while(temp->next!=NULL){
-    if ((temp->next)->next==NULL && (temp->next)->fd==fd) {
-      temp->next=NULL;
-      break;
-    }
-    if((temp->next)->fd==fd){
-      temp->next=(temp->next)->next;
-    }
-    temp=temp->next;
-  }
-  return user_list;
-
-}
-
-
 //Fonctions---------------------------------------------------------------------
 
 
@@ -293,6 +127,168 @@ void close_socket(int socket){
 }
 
 
+// struct user------------------------------------------
+struct user{
+  char pseudo[255];
+  int fd;
+  struct user *next;
+};
+
+// create a new user------------------------------------------
+
+struct user *create_user(char pseudo[],int fd){
+  struct user *new_user;
+  new_user=malloc(sizeof(struct user));
+  strcpy(new_user->pseudo,pseudo);
+  new_user->fd=fd;
+  new_user->next=NULL;
+  return new_user;
+}
+
+// return the size of the user list------------------------------------------
+
+int user_list_size(struct user *user_list){
+  if (user_list==NULL){
+    printf("taille nul\n" );
+
+  return 0;
+}
+int size=0;
+while (user_list!=NULL){
+
+  size++;
+  user_list=user_list->next;
+  printf("%i\n",size );
+
+}
+
+return size;
+}
+
+// add une new user---------------------------------------------------------
+struct user *user_add(struct user *user,char pseudo[],int fd){
+
+	struct user *new_user=malloc(sizeof(struct user));
+	new_user=create_user(pseudo,fd);
+
+	if (user_list_size(user) ==0){
+		new_user->next=user;
+    printf("1er user %s\n",new_user->pseudo );
+		return new_user;
+	}
+	else {
+		struct user *temp;
+		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      strcpy(temp->pseudo,pseudo);
+      return temp;
+    }
+		while(temp->next!=NULL){
+
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+
+        return temp;
+      }
+      temp=temp->next;
+
+		}
+		temp->next=new_user;
+		return user;
+	}
+}
+
+
+// change the pseudo of an user---------------------------------------------------------
+struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
+
+		struct user *temp;
+		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      strcpy(temp->pseudo,pseudo);
+    }
+		while(temp!=NULL){
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+        strcpy(temp->pseudo,pseudo);
+      }
+      temp=temp->next;
+		}
+  	return user;
+	}
+
+
+
+//display the list of user ----------------------------------------
+
+int display_user_list(struct user *list_user,int fd){
+  char buffer[255]=" [Server] : Online users are :";
+	if (list_user==NULL)
+	return 0;
+
+	while (list_user!=NULL){
+      char pseudo[255]="\n -";
+       strcat(pseudo,list_user->pseudo);
+       strcat(buffer,pseudo);
+		list_user=list_user->next;
+	}
+  do_write(fd,buffer);
+	return 1;
+
+}
+
+
+
+// return the user pseudo------------------------------------------
+
+
+char *user_pseudo(struct user *user_list,int fd){
+  if (user_list==NULL)
+  return 0;
+
+  while (user_list!=NULL){
+    if(user_list->fd==fd){
+      return user_list->pseudo;
+    }
+    user_list=user_list->next;
+  }
+  return 0;
+
+}
+
+// delete an user------------------------------------------
+
+struct user *delete_user(struct user *user_list,int fd){
+  printf("opssps\n" );
+
+	if (user_list==NULL)
+	return NULL;
+  struct user *temp;
+  temp=user_list;
+  if(temp->fd==fd){
+    return temp->next;
+  }
+
+
+  while(temp->next!=NULL){
+    if ((temp->next)->next==NULL && (temp->next)->fd==fd) {
+      temp->next=NULL;
+      break;
+    }
+    if((temp->next)->fd==fd){
+      temp->next=(temp->next)->next;
+    }
+    temp=temp->next;
+  }
+  return user_list;
+
+}
+
+
+
+
 
 //Corps-------------------------------------------------------------------------
 
@@ -393,7 +389,7 @@ int main(int argc, char** argv)
                     break;
                   }
 
-                  // si / alors on regarde le prochain mot
+                  //idee si / alors on regarde le prochain mot
                   if(strncmp(buffer, "/ ",1) == 0 ){
 
                     // int space[255];
