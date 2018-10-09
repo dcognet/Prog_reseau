@@ -119,34 +119,43 @@ int main(int argc,char** argv){
 
 
     //connect to remote socket----------------------------------------------------
-    printf("Etape : Connexion serveur\n");
+    printf("Connexion au serveur\n");
     do_connect(socket,pointeur_serv_addr);
+    do_read(socket,buffer);
+    printf("%s\n",buffer);
+
+
+    pid_t pid=fork();
 
     while(1){
 
-    //get user input--------------------------------------------------------------
-    printf("Etape : Lecture saisie\n");
-    const char saisie[256];
-    gets(saisie);
-    const void* msg = saisie;
 
 
-    //send message to the server--------------------------------------------------
-    printf("Etape : Envoi message utilisateur\n");
-    handle_client_message(socket,msg);
 
+//send message to the server--------------------------------------------------
 
-    //connexion end---------------------------------------------------------------
-    if(strcmp(msg, "/quit") == 0 ){
-      printf("Fermeture connexion client\n");
-      break;
+    if(pid==0){
+            //read what the client has to say---------------------------------------------
+            memset (buffer, '\0', sizeof (buffer));
+            do_read(socket,buffer);
+            fprintf(stdout,"%s\n",buffer);
+    }
+    else{
+      //get user input--------------------------------------------------------------
+      const char saisie[256];
+      gets(saisie);
+      const void* msg = saisie;
+      handle_client_message(socket,msg);
+      //connexion end---------------------------------------------------------------
+      if(strcmp(msg, "/quit") == 0 ){
+        printf("Fermeture connexion client\n");
+        break;
+      }
+
     }
 
-    //read what the client has to say---------------------------------------------
-    printf("Etape : Lecture du message reçu\n");
-    memset (buffer, '\0', sizeof (buffer));
-    do_read(socket,buffer);
-    printf("Le message reçu est: %s\n",buffer);
+
+
 
 
   }

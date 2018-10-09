@@ -8,11 +8,12 @@
 #include <poll.h>
 #include <signal.h>
 
-
-
-
 //Fonctions---------------------------------------------------------------------
 
+
+
+
+//---------------------------------------
 void error(const char *msg)
 {
   perror(msg);
@@ -126,6 +127,184 @@ void close_socket(int socket){
 }
 
 
+// struct user------------------------------------------
+struct user{
+  char pseudo[255];
+  int fd;
+
+  struct user *next;
+
+};
+
+// create a new user------------------------------------------
+
+struct user *create_user(char pseudo[],int fd){
+  struct user *new_user;
+  new_user=malloc(sizeof(struct user));
+  strcpy(new_user->pseudo,pseudo);
+  new_user->fd=fd;
+  new_user->next=NULL;
+  return new_user;
+}
+
+// return the size of the user list------------------------------------------
+
+int user_list_size(struct user *user_list){
+  if (user_list==NULL){
+    printf("taille nul\n" );
+
+  return 0;
+}
+int size=0;
+while (user_list!=NULL){
+
+  size++;
+  user_list=user_list->next;
+  printf("%i\n",size );
+
+}
+
+return size;
+}
+
+// add une new user---------------------------------------------------------
+struct user *user_add(struct user *user,char pseudo[],int fd){
+
+	struct user *new_user=malloc(sizeof(struct user));
+	new_user=create_user(pseudo,fd);
+
+	if (user_list_size(user) ==0){
+		new_user->next=user;
+    printf("1er user %s\n",new_user->pseudo );
+		return new_user;
+	}
+	else {
+		struct user *temp;
+		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      strcpy(temp->pseudo,pseudo);
+      return temp;
+    }
+		while(temp->next!=NULL){
+
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+
+        return temp;
+      }
+      temp=temp->next;
+
+		}
+		temp->next=new_user;
+		return user;
+	}
+}
+
+
+// change the pseudo of an user---------------------------------------------------------
+struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
+
+		struct user *temp;
+		temp=user;
+    if(temp->fd==fd){
+      printf("deja indentifié\n");
+      strcpy(temp->pseudo,pseudo);
+    }
+		while(temp!=NULL){
+      if(temp->fd==fd){
+        printf("deja indentifié\n" );
+        strcpy(temp->pseudo,pseudo);
+      }
+      temp=temp->next;
+		}
+  	return user;
+	}
+
+
+
+//display the list of user ----------------------------------------
+
+int display_user_list(struct user *list_user,int fd){
+  char buffer[255]=" [Server] : Online users are :";
+	if (list_user==NULL)
+	return 0;
+
+	while (list_user!=NULL){
+      char pseudo[255]="\n -";
+       strcat(pseudo,list_user->pseudo);
+       strcat(buffer,pseudo);
+		list_user=list_user->next;
+	}
+  do_write(fd,buffer);
+	return 1;
+
+}
+
+
+
+// return the user pseudo------------------------------------------
+
+
+char *user_pseudo(struct user *user_list,int fd){
+  if (user_list==NULL)
+  return 0;
+
+  while (user_list!=NULL){
+    if(user_list->fd==fd){
+      return user_list->pseudo;
+    }
+    user_list=user_list->next;
+  }
+  return 0;
+
+}
+
+// delete an user------------------------------------------
+
+struct user *delete_user(struct user *user_list,int fd){
+  printf("opssps\n" );
+
+	if (user_list==NULL)
+	return NULL;
+  struct user *temp;
+  temp=user_list;
+  if(temp->fd==fd){
+    return temp->next;
+  }
+
+
+  while(temp->next!=NULL){
+    if ((temp->next)->next==NULL && (temp->next)->fd==fd) {
+      temp->next=NULL;
+      break;
+    }
+    if((temp->next)->fd==fd){
+      temp->next=(temp->next)->next;
+    }
+    temp=temp->next;
+  }
+  return user_list;
+
+}
+
+
+
+
+void broadcast(int sender_fd, const void *buffer, struct user *list_user){
+  if (list_user==NULL)
+  return 0;
+
+  while (list_user!=NULL){
+    if(list_user->fd!=sender_fd){
+      do_write(list_user->fd,buffer);
+
+    }
+    list_user=list_user->next;
+  }
+  return 1;
+}
+
 
 //Corps-------------------------------------------------------------------------
 
@@ -168,6 +347,9 @@ int main(int argc, char** argv)
   fds[0].fd=socket;
   fds[0].events=POLLIN;
 
+  struct user *user_list=NULL;
+
+
 
 
   while(1){
@@ -185,7 +367,6 @@ int main(int argc, char** argv)
             struct sockaddr_in pointeur_host_addr;
             int new_socket = do_accept(socket,pointeur_host_addr);
 
-
             if(nb_co>=nb_co_max){
               // refuse the connection if there is too much client
               printf("Acceptation d'un nouveau client impossibla car trop de connection\n");
@@ -193,12 +374,14 @@ int main(int argc, char** argv)
               close_socket(new_socket);
               break;
             }
-            printf("Acceptation d'un nouveau client\n");
+            printf("Acceptation d'un nouveau client : client n)%i\n",i);
             fds[i].fd=new_socket;
             fds[i].events=POLLIN;
             nb_co++;
             printf("nombre de connection = %i\n",nb_co);
-
+            memset (buffer, '\0', sizeof (buffer));
+            strcpy(buffer,"[Server] : please logon with /nick <your pseudo>");
+            do_write(fds[i].fd,buffer);
             break;
           }
         }
@@ -213,6 +396,8 @@ int main(int argc, char** argv)
                   //clean up client socket-------------------------------------------------
                   if(strcmp(buffer, "/quit") == 0 ){
                     printf("Fermeture socket client\n");
+                    user_list=delete_user(user_list,fds[i].fd);
+
                     close_socket(fds[i].fd);
                     fds[i].fd=-1;
                     fds[i].events=-1;
@@ -220,8 +405,57 @@ int main(int argc, char** argv)
                     break;
                   }
 
+                  //idee si / alors on regarde le prochain mot
+                  if(strncmp(buffer, "/ ",1) == 0 ){
+
+                    // int space[255];
+                    // space[0]=0;
+                    // int indice=0;
+                    // int j=0;
+                    // //permet de trouver les espaces dans la ligne
+                    // while (buffer[indice]!='\0') {
+                    //   if(buffer[indice]==' '){
+                    //     space[j]=indice;
+                    //     j++;
+                    //   }
+                    //   indice++;
+                    // }
+
+                    // char command[255];
+                    // memset(command,'\0',sizeof(command));
+                    // strncpy(command,buffer,space[0]);
+                    // printf("%s\n",command);
+
+// command /nick
+                    if(strncmp(buffer,"/nick",5)==0){
+                      char pseudo[255]="";
+                      char envoie[255]="[Serveur] : Welcome on the chat : ";
+                      strncpy(pseudo,buffer+6,10);
+                      if (user_pseudo(user_list,fds[i].fd)==0)
+                        user_list=user_add(user_list,pseudo,fds[i].fd);
+                        else
+                        user_list=user_change_pseudo(user_list,pseudo,fds[i].fd);
+                      do_write(fds[i].fd,strcat(envoie,user_pseudo(user_list,fds[i].fd)));
+
+                      break;
+                    }
+
+            // command /who
+
+                    if(strcmp(buffer,"/who")==0){
+                      char pseudo[255]="";
+                      char envoie[255]="Voici la liste des utilisateur actuellement en ligne\n";
+                      printf("%s\n",envoie );
+                      display_user_list(user_list,fds[i].fd);
+                      break;
+                    }
+                  }
+
+
+                broadcast(fds[i].fd,buffer,user_list);
+
                 //we write back to the client---------------------------------------------
-                do_write(fds[i].fd,buffer);
+                //do_write(fds[i].fd,buffer);
               }
             }
           }
