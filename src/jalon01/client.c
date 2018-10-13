@@ -145,9 +145,6 @@ int main(int argc,char** argv){
     }
   }
 
-  do_read(socket,saisie);
-  printf("%s\n",saisie);
-
   pid_t pid=fork();
 
   while(1){
@@ -163,8 +160,6 @@ int main(int argc,char** argv){
         i++;
       }
       strncpy(pseudo,buffer,i);
-      fprintf(stdout,"dddd\n");
-
       fprintf(stdout,"[%s] %s\n",pseudo,buffer+i+1);
     }
     else{

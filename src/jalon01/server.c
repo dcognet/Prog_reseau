@@ -197,7 +197,7 @@ int user_date_connexion(int fd, struct user *user_list,char pseudo[]){
       char baffer[MSG_SIZE];
       struct tm *date = user_list->date;
 
-      sprintf(baffer,"[Server] : %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d\n",
+      sprintf(baffer,"Server| : %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
       pseudo,
       date->tm_year + 1900,
       date->tm_mon + 1,
@@ -274,6 +274,9 @@ int main(int argc, char** argv)
   struct user *user_list = NULL;
   struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
   char envoie[MSG_SIZE];
+  char *msg=malloc(MSG_SIZE*sizeof(char));
+  char server[MSG_SIZE]="Server";
+
 
 
   //get the socket--------------------------------------------------------------
@@ -355,24 +358,9 @@ int main(int argc, char** argv)
             strncpy(pseudo,buffer+6,10);
             printf("%s\n",pseudo);
             user_list = user_change_pseudo(user_list,pseudo,fds[i].fd);
-            strcpy(envoie,"[Serveur] : Welcome on the chat : ");
             do_write(fds[i].fd,strcat(envoie,user_pseudo(user_list,fds[i].fd)));
             break;
           }
-
-          // // command /nick
-          //                     if(strncmp(buffer,"/nick",5)==0){
-          //                       char pseudo[255]="";
-          //                       char envoie[255]="server|Welcome on the chat : ";
-          //                       strncpy(pseudo,buffer+6,10);
-          //                       if (user_pseudo(user_list,fds[i].fd)==0)
-          //                         user_list=user_add(user_list,pseudo,fds[i].fd);
-          //                         else
-          //                         user_list=user_change_pseudo(user_list,pseudo,fds[i].fd);
-          //                       do_write(fds[i].fd,strcat(envoie,user_pseudo(user_list,fds[i].fd)));
-          //
-          //                       break;
-          //                     }
 
           //command /who
 
@@ -391,7 +379,6 @@ int main(int argc, char** argv)
             break;
           }
           if(strncmp(buffer,"/msgall",7)==0){
-            char *msg=malloc(MSG_SIZE*sizeof(char));
             msg=msg_to_send(user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall "));
             broadcast(fds[i].fd,msg,user_list);
             break;
@@ -418,9 +405,8 @@ int main(int argc, char** argv)
 
 
           //we write back to the client---------------------------------------------
-          char pseudo[255]="";
-          strcat(pseudo,buffer);
-          do_write(fds[i].fd,pseudo);
+          msg=msg_to_send(server,buffer);
+          do_write(fds[i].fd,msg);
         }
       }
     }
