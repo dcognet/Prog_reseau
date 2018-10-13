@@ -233,7 +233,7 @@ int main(int argc, char** argv){
 
   int i, valeur,event_fd,new_socket;
   int nb_co = 0;
-  int nb_co_max = 3;
+  int nb_co_max = 20;
   struct pollfd fds[200];
   char buffer[MSG_SIZE];
   char pseudo[MSG_SIZE];
@@ -268,7 +268,7 @@ int main(int argc, char** argv){
 
     event_fd = poll(fds,nb_co_max+1,-1);
 
-    for (i = 1; i <= 20; i++) {
+    for (i = 1; i <= nb_co_max; i++) {
 
       if(fds[0].revents == POLLIN){
         if(fds[i].fd == -1){
