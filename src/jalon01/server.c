@@ -212,7 +212,7 @@ int user_date_connexion(int fd, struct user *user_list,char pseudo[]){
     }
     user_list=user_list->next;
   }
-  do_write(fd,"Aucun utilisateur ne possède cet identifiant\n");
+  do_write(fd,"Aucun utilisateur ne possède cet identifiant");
   return 1;
 }
 
@@ -293,6 +293,8 @@ int main(int argc, char** argv){
           fds[i].events = POLLIN;
           nb_co++;
           printf("Nombre de connection = %i\n",nb_co);
+          memset(buffer,'\0',MSG_SIZE);
+
           strcpy(buffer,"[Server] : please logon with /nick <your pseudo>");
           do_write(fds[i].fd,buffer);
           break;
@@ -304,6 +306,7 @@ int main(int argc, char** argv){
         if(fds[i].revents == POLLIN){
 
           //read what the do_readclient has to say------------------------------
+          memset(buffer,'\0',MSG_SIZE);
 
           valeur = do_read(fds[i].fd,buffer);
           printf("Le message reçu est: %s\n",buffer);
@@ -313,6 +316,7 @@ int main(int argc, char** argv){
           if(strncmp(buffer,"/nick",strlen("/nick")) == 0){
             memset(pseudo,'\0',MSG_SIZE);
             strcpy(pseudo,buffer+strlen("/nick "));
+            printf("%s\n",pseudo);
             user_list = user_change_pseudo(user_list,pseudo,fds[i].fd);
             strcpy(envoie,"[Serveur] : Welcome on the chat : ");
             do_write(fds[i].fd,strcat(envoie,pseudo));

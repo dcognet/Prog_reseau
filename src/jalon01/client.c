@@ -89,9 +89,9 @@ void do_read(int socket, char *buffer){
 
 int main(int argc,char** argv){
 
-  if (argc != 4)
+  if (argc != 3)
   {
-    fprintf(stderr,"usage: RE216_CLIENT hostname port\n");
+    fprintf(stderr,"usage: RE216_CLIENT  port hostname\n");
     return 1;
   }
 
@@ -117,16 +117,22 @@ int main(int argc,char** argv){
   printf("Connexion au serveur\n");
   do_connect(socket,pointeur_serv_addr);
 
+
   //Obligation identification
+  memset(buffer,'\0',MSG_SIZE);
   do_read(socket,buffer);
   printf("%s\n",buffer);
 
   while(1){
+
+    memset(saisie,'\0',MSG_SIZE);
     do_read(STDIN_FILENO,saisie);
     //strcpy(saisie,"/nick ");
     //strcat(saisie,argv[3]);
     if(strncmp(saisie,"/nick ",strlen("/nick "))==0){
-      handle_client_message(socket,saisie);
+      memset (copie, '\0', MSG_SIZE);
+      strncpy(copie,saisie,strlen(saisie)-1);
+      handle_client_message(socket,copie);
       printf("Identification réussie\n");
       break;
     }
