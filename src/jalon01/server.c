@@ -9,14 +9,9 @@
 #include <signal.h>
 #include <time.h>
 #include <arpa/inet.h>
-#include "server_tools.h"
-#include "user_tools.h"
-#include "server_cast.H"
-
-
-
-
-
+#include "include/server_tools.h"
+#include "include/user_tools.h"
+#include "include/server_cast.H"
 
 
 // char *msg_to_send(char sender[],char buffer[]){
@@ -151,6 +146,9 @@ int main(int argc, char** argv)
             user_date_connexion(fds[i].fd,user_list,pseudo);
             break;
           }
+
+          // command broadcast--------------------------------------
+
           if(strncmp(buffer,"/msgall",7)==0){
             sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall ") );
             broadcast(fds[i].fd,envoie,user_list);
@@ -168,6 +166,8 @@ int main(int argc, char** argv)
             printf("Nombre de connection = %i\n",nb_co);
             break;
           }
+
+            // command unicast-------------------------------------------
           if(strncmp(buffer,"/msg",4)==0){
             int space=0;
             while(buffer[space+strlen("/msg ")]!=' '){

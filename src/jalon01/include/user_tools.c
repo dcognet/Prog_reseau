@@ -190,6 +190,7 @@ int user_fd(struct user *user_list){
   return user_list->fd;
 }
 
+//return the next user
 struct user *user_next(struct user *user_list){
   return user_list->next;
 }

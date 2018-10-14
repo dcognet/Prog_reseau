@@ -1,6 +1,8 @@
 #include "server_cast.h"
 
 
+
+
 int broadcast(int sender_fd, const void *buffer, struct user *list_user){
   if (list_user==NULL)
   return 0;
