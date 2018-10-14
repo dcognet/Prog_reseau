@@ -9,243 +9,15 @@
 #include <signal.h>
 #include <time.h>
 #include <arpa/inet.h>
-
-#define MSG_SIZE 256
-
-
-//Fonctions---------------------------------------------------------------------
-void error(const char *msg);
-
-int do_socket(int domain, int type, int protocol);
-
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr);
-
-void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr);
-
-void listen_client(int socket, int backlog);
-
-int do_accept(int socket, struct sockaddr_in *pointeur_host_addr);
-
-int do_read(int socket, char *buffer);
-
-void do_write(int fd, const void *buffer);
-
-void close_socket(int socket);
-
-//Struct user-------------------------------------------------------------------
-
-struct user{
-  char pseudo[MSG_SIZE];
-  int fd;
-  struct user *next;
-  struct tm *date;
-  u_short port;
-  char *ip;
-};
-
-//Create a new user-------------------------------------------------------------
-
-struct user *create_user(int fd,struct sockaddr_in *pointeur_host_addr){
-
-  struct user *new_user = malloc(sizeof(struct user));
-  time_t date = time(NULL);
-  struct tm *pointeur_date = localtime(&date);
-
-  new_user->fd = fd;
-  new_user->next = NULL;
-  new_user->date = pointeur_date;
-  new_user->port = pointeur_host_addr->sin_port;
-  new_user->ip = inet_ntoa(pointeur_host_addr->sin_addr);
-
-  return new_user;
-}
-
-//Return the size of the user list----------------------------------------------
-
-int user_list_size(struct user *user_list){
-  int size=0;
-  if (user_list==NULL){
-    return 0;
-  }
-  while (user_list!=NULL){
-    size++;
-    user_list=user_list->next;
-  }
-  return size;
-}
-
-//Add une new user--------------------------------------------------------------
-
-struct user *user_add(struct user *user,int fd,struct sockaddr_in *pointeur_host_addr){
-
-  struct user *new_user = create_user(fd,pointeur_host_addr);
-
-  if (user_list_size(user) == 0){
-    new_user->next = user;
-    return new_user;
-  }
-
-  else {
-    struct user *temp = user;
-    while(temp->next != NULL){
-      temp = temp->next;
-    }
-    temp->next = new_user;
-    return user;
-  }
-}
-
-//Change the pseudo of an user--------------------------------------------------
-
-struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
-
-  struct user *temp = user;
-
-  if(temp->fd==fd){
-    strcpy(temp->pseudo,pseudo);
-  }
-  while(temp!=NULL){
-    if(temp->fd==fd){
-      memset(temp->pseudo,'\0',MSG_SIZE);
-      strcpy(temp->pseudo,pseudo);
-    }
-    temp=temp->next;
-  }
-
-  return user;
-}
-
-//Display the list of user -----------------------------------------------------
-
-int display_user_list(struct user *list_user,int fd){
-  char buffer[MSG_SIZE]="[Server] Online users are :";
-  char pseudo[MSG_SIZE]="";
-
-  if (list_user==NULL){
-    return 0;
-  }
-  memset(pseudo,'\0',MSG_SIZE);
-  while (list_user!=NULL){
-    strcat(pseudo,"\n -");
-    strcat(pseudo,list_user->pseudo);
-    list_user = list_user->next;
-  }
-
-  do_write(fd,strcat(buffer,pseudo));
-  return 1;
-}
-
-//Return the user pseudo--------------------------------------------------------
-
-char *user_pseudo(struct user *user_list,int fd){
-
-  if (user_list==NULL){
-    return NULL;
-  }
-
-  while (user_list!=NULL){
-    if(user_list->fd==fd){
-      return user_list->pseudo;
-    }
-    user_list=user_list->next;
-  }
-
-  return NULL;
-}
-
-//Delete an user----------------------------------------------------------------
-
-struct user *delete_user(struct user *user_list,int fd){
-
-  struct user *temp = user_list;
-
-  if (user_list==NULL){
-    return NULL;
-  }
-
-  //Supprimer premier maillon
-
-  if(temp->fd==fd){
-    return temp->next;
-  }
-
-  while(temp->next!=NULL){
-
-    //Supprimer dernier maillon
-
-    if ((temp->next)->next==NULL && (temp->next)->fd==fd) {
-      temp->next=NULL;
-      break;
-    }
-
-    //Supprimer maillon entre le premier et le dernier
-
-    if((temp->next)->fd==fd){
-      temp->next=(temp->next)->next;
-    }
-    temp=temp->next;
-  }
-  return user_list;
-}
-
-//Date afficher-----------------------------------------------------------------
-
-int user_date_connexion(int fd, struct user *user_list,char pseudo[]){
-
-  while (user_list!=NULL){
-    if(strcmp(pseudo,user_list->pseudo)==0){
-      char baffer[MSG_SIZE];
-      struct tm *date = user_list->date;
-
-      sprintf(baffer,"[Server] %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
-      pseudo,
-      date->tm_year + 1900,
-      date->tm_mon + 1,
-      date->tm_mday,
-      date->tm_hour,
-      date->tm_min,
-      user_list->ip,
-      user_list->port);
-
-      do_write(fd,baffer);
-      return 0;
-    }
-    user_list=user_list->next;
-  }
-  do_write(fd,"Aucun utilisateur ne possède cet identifiant");
-  return 1;
-}
+#include "server_tools.h"
+#include "user_tools.h"
+#include "server_cast.H"
 
 
 
-int broadcast(int sender_fd, const void *buffer, struct user *list_user){
-  if (list_user==NULL)
-  return 0;
 
-  while (list_user!=NULL){
-    if(list_user->fd!=sender_fd){
-      do_write(list_user->fd,buffer);
 
-    }
-    list_user=list_user->next;
-  }
-  return 1;
-}
 
-int unicast(int sender_fd, const void *buffer, struct user *list_user, char receiver_pseudo[]){
-  if (list_user==NULL)
-  return 0;
-
-  while (list_user!=NULL){
-    if(strcmp(receiver_pseudo,list_user->pseudo)==0){
-      printf("ok\n");
-      do_write(list_user->fd,buffer);
-      break;
-    }
-    list_user=list_user->next;
-  }
-  return 1;
-}
 
 // char *msg_to_send(char sender[],char buffer[]){
 //   strcat(sender,"|");
@@ -273,7 +45,7 @@ int main(int argc, char** argv)
   struct pollfd fds[200];
   char buffer[MSG_SIZE];
   char pseudo[MSG_SIZE];
-  struct user *user_list = NULL;
+  struct user *user_list=NULL;
   struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
   char envoie[MSG_SIZE];
   char *msg=malloc(MSG_SIZE*sizeof(char));
@@ -380,8 +152,8 @@ int main(int argc, char** argv)
             break;
           }
           if(strncmp(buffer,"/msgall",7)==0){
-            sprintf(buffer,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall ") );
-            broadcast(fds[i].fd,buffer,user_list);
+            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall ") );
+            broadcast(fds[i].fd,envoie,user_list);
             break;
           }
           //clean up client socket----------------------------------------------
@@ -397,17 +169,16 @@ int main(int argc, char** argv)
             break;
           }
           if(strncmp(buffer,"/msg",4)==0){
-            int i=0;
-            while(buffer[i+strlen("/msg ")]!=' '){
-              i++;
+            int space=0;
+            while(buffer[space+strlen("/msg ")]!=' '){
+              space++;
             }
             memset(pseudo,'\0',MSG_SIZE);
-            strncpy(pseudo,buffer+strlen("/msg "),i);
+            strncpy(pseudo,buffer+strlen("/msg "),space);
             printf("%s\n",pseudo );
-            sprintf(buffer,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+i+strlen("/msg ") );
-            printf("%s\n",buffer );
-            //msg=msg_to_send(user_pseudo(user_list,fds[i].fd),buffer+i+strlen("/msg "));
-            unicast(fds[i].fd,buffer,user_list,pseudo);
+            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+space+strlen("/msg ") );
+            printf("%s\n",envoie );
+            unicast(fds[i].fd,envoie,user_list,pseudo);
             break;
           }
 
@@ -415,9 +186,8 @@ int main(int argc, char** argv)
 
 
           //we write back to the client---------------------------------------------
-          memset(msg,'\0',strlen(msg));
-          sprintf(buffer,"[Server] %s",buffer);
-          do_write(fds[i].fd,buffer);
+          sprintf(envoie,"[Server] %s",buffer);
+          do_write(fds[i].fd,envoie);
         }
       }
     }
@@ -428,102 +198,4 @@ int main(int argc, char** argv)
   close_socket(socket);
   return 0;
 
-}
-
-
-//------------------------------------------------------------------------------
-
-void error(const char *msg){
-  perror(msg);
-  exit(1);
-}
-
-//------------------------------------------------------------------------------
-
-int do_socket(int domain, int type, int protocol) {
-  int socket1 = socket(domain,type,protocol);
-  int yes = 1;
-
-  if(socket1 == -1){
-    error("ERROR socket creation");
-  }
-  if (setsockopt(socket1, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1){
-    error("ERROR setting socket options");
-  }
-
-  return socket1;
-}
-
-//------------------------------------------------------------------------------
-
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr) {
-
-  int portno;
-
-  memset(serv_addr,'\0',sizeof(serv_addr));
-  portno = atoi(port);
-  serv_addr->sin_family = AF_INET;
-  serv_addr->sin_addr.s_addr = INADDR_ANY;
-  serv_addr->sin_port = htons(portno);
-}
-
-//------------------------------------------------------------------------------
-
-void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr){
-  int i = bind(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(pointeur_serv_addr));
-  if(i == -1){
-    error("ERROR bind server");
-  }
-}
-
-
-//------------------------------------------------------------------------------
-
-void listen_client(int socket, int backlog){
-  int i = listen(socket, backlog);
-  if(i == -1){
-    error("ERROR listen server");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-int do_accept(int socket, struct sockaddr_in *pointeur_host_addr){
-  size_t host_addr_size = sizeof(struct sockaddr_in);
-  int i = accept(socket, (struct sockaddr *)pointeur_host_addr,(socklen_t *)&host_addr_size);
-  printf("Je me connecte avec l'adresse : %s\n",inet_ntoa(pointeur_host_addr->sin_addr));
-
-  if(i == -1){
-    error("ERROR accepte server");
-  }
-  return i;
-}
-
-//------------------------------------------------------------------------------
-
-int do_read(int socket, char *buffer){
-  memset (buffer, '\0', MSG_SIZE);
-  int i = read(socket,buffer,MSG_SIZE);
-  if(i == -1){
-    error("ERROR read server");
-  }
-  return i;
-}
-
-//------------------------------------------------------------------------------
-
-void do_write(int fd, const void *buffer){
-  size_t i = write(fd,buffer,MSG_SIZE);
-  if(i == -1){
-    error("ERROR write server");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-void close_socket(int socket){
-  int i = close(socket);
-  if(i == -1){
-    error("ERROR close socket");
-  }
 }
