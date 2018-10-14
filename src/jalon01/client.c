@@ -100,7 +100,6 @@ int main(int argc,char** argv){
 
   char buffer[MSG_SIZE];
   char saisie[MSG_SIZE];
-  char pseudo[MSG_SIZE];
   char copie[MSG_SIZE];
   int socket;
   struct sockaddr_in pointeur_serv_addr;
@@ -154,13 +153,8 @@ int main(int argc,char** argv){
       //read what the client has to say---------------------------------------------
       memset (buffer, '\0', sizeof (buffer));
       do_read(socket,buffer);
-      memset (pseudo, '\0', sizeof (pseudo));
-      i=0;
-      while(buffer[i]!='|'){
-        i++;
-      }
-      strncpy(pseudo,buffer,i);
-      fprintf(stdout,"[%s] %s\n",pseudo,buffer+i+1);
+      fprintf(stdout,"%s\n",buffer);
+
     }
     else{
       //get user input--------------------------------------------------------------

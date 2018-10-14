@@ -118,7 +118,7 @@ struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
 //Display the list of user -----------------------------------------------------
 
 int display_user_list(struct user *list_user,int fd){
-  char buffer[MSG_SIZE]="Server|Online users are :";
+  char buffer[MSG_SIZE]="[Server] Online users are :";
   char pseudo[MSG_SIZE]="";
 
   if (list_user==NULL){
@@ -197,7 +197,7 @@ int user_date_connexion(int fd, struct user *user_list,char pseudo[]){
       char baffer[MSG_SIZE];
       struct tm *date = user_list->date;
 
-      sprintf(baffer,"Server| : %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
+      sprintf(baffer,"[Server] %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
       pseudo,
       date->tm_year + 1900,
       date->tm_mon + 1,
@@ -237,20 +237,22 @@ int unicast(int sender_fd, const void *buffer, struct user *list_user, char rece
   return 0;
 
   while (list_user!=NULL){
-    if(receiver_pseudo==list_user->pseudo){
+    if(strcmp(receiver_pseudo,list_user->pseudo)==0){
+      printf("ok\n");
       do_write(list_user->fd,buffer);
+      break;
     }
     list_user=list_user->next;
   }
   return 1;
 }
 
-char *msg_to_send(char sender[],char buffer[]){
-  strcat(sender,"|");
-  strcat(sender,buffer);
-  printf("%s\n", sender);
-  return sender;
-}
+// char *msg_to_send(char sender[],char buffer[]){
+//   strcat(sender,"|");
+//   strcat(sender,buffer);
+//   printf("%s\n", sender);
+//   return sender;
+// }
 
 //Corps-------------------------------------------------------------------------
 
@@ -354,7 +356,7 @@ int main(int argc, char** argv)
           if(strncmp(buffer,"/nick",strlen("/nick")) == 0){
             memset(pseudo,'\0',MSG_SIZE);
             strcpy(pseudo,buffer+strlen("/nick "));
-            strcpy(envoie,"server|Welcome on the chat : ");
+            strcpy(envoie,"[Server] Welcome on the chat : ");
             strncpy(pseudo,buffer+6,10);
             printf("%s\n",pseudo);
             user_list = user_change_pseudo(user_list,pseudo,fds[i].fd);
@@ -365,7 +367,6 @@ int main(int argc, char** argv)
           //command /who
 
           if(strcmp(buffer,"/who") == 0){
-            printf("who marche\n" );
             display_user_list(user_list,fds[i].fd);
             break;
           }
@@ -379,8 +380,8 @@ int main(int argc, char** argv)
             break;
           }
           if(strncmp(buffer,"/msgall",7)==0){
-            msg=msg_to_send(user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall "));
-            broadcast(fds[i].fd,msg,user_list);
+            sprintf(buffer,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall ") );
+            broadcast(fds[i].fd,buffer,user_list);
             break;
           }
           //clean up client socket----------------------------------------------
@@ -395,18 +396,28 @@ int main(int argc, char** argv)
             printf("Nombre de connection = %i\n",nb_co);
             break;
           }
-          // if(strncmp(buffer,"/msg",4)==0){
-          //
-          //   unicast(fds[i].fd,buffer+4,user_list,);
-          //   break;
-          // }
+          if(strncmp(buffer,"/msg",4)==0){
+            int i=0;
+            while(buffer[i+strlen("/msg ")]!=' '){
+              i++;
+            }
+            memset(pseudo,'\0',MSG_SIZE);
+            strncpy(pseudo,buffer+strlen("/msg "),i);
+            printf("%s\n",pseudo );
+            sprintf(buffer,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+i+strlen("/msg ") );
+            printf("%s\n",buffer );
+            //msg=msg_to_send(user_pseudo(user_list,fds[i].fd),buffer+i+strlen("/msg "));
+            unicast(fds[i].fd,buffer,user_list,pseudo);
+            break;
+          }
 
 
 
 
           //we write back to the client---------------------------------------------
-          msg=msg_to_send(server,buffer);
-          do_write(fds[i].fd,msg);
+          memset(msg,'\0',strlen(msg));
+          sprintf(buffer,"[Server] %s",buffer);
+          do_write(fds[i].fd,buffer);
         }
       }
     }
