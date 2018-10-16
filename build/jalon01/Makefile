@@ -48,10 +48,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src
+CMAKE_SOURCE_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build
+CMAKE_BINARY_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -80,14 +80,14 @@ rebuild_cache/fast: rebuild_cache
 
 # The main all target
 all: cmake_check_build_system
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(CMAKE_COMMAND) -E cmake_progress_start /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/CMakeFiles /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01/CMakeFiles/progress.marks
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/CMakeFiles 0
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(CMAKE_COMMAND) -E cmake_progress_start /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/CMakeFiles /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01/CMakeFiles/progress.marks
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/clean
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/clean
 .PHONY : clean
 
 # The main clean target
@@ -97,22 +97,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/preinstall
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/preinstall
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/rule:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/rule
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/rule
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/rule
 
 # Convenience name for target.
@@ -122,12 +122,12 @@ RE216_JALON01_SERVER: jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/rule
 
 # fast build rule for target.
 RE216_JALON01_SERVER/fast:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build
 .PHONY : RE216_JALON01_SERVER/fast
 
 # Convenience name for target.
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/rule:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/rule
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f CMakeFiles/Makefile2 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/rule
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/rule
 
 # Convenience name for target.
@@ -137,7 +137,7 @@ RE216_JALON01_CLIENT: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/rule
 
 # fast build rule for target.
 RE216_JALON01_CLIENT/fast:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build
 .PHONY : RE216_JALON01_CLIENT/fast
 
 client.o: client.c.o
@@ -146,7 +146,7 @@ client.o: client.c.o
 
 # target to build an object file
 client.c.o:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o
 .PHONY : client.c.o
 
 client.i: client.c.i
@@ -155,7 +155,7 @@ client.i: client.c.i
 
 # target to preprocess a source file
 client.c.i:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i
 .PHONY : client.c.i
 
 client.s: client.c.s
@@ -164,8 +164,116 @@ client.s: client.c.s
 
 # target to generate assembly for a file
 client.c.s:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s
 .PHONY : client.c.s
+
+include/client_tools.o: include/client_tools.c.o
+
+.PHONY : include/client_tools.o
+
+# target to build an object file
+include/client_tools.c.o:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o
+.PHONY : include/client_tools.c.o
+
+include/client_tools.i: include/client_tools.c.i
+
+.PHONY : include/client_tools.i
+
+# target to preprocess a source file
+include/client_tools.c.i:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.i
+.PHONY : include/client_tools.c.i
+
+include/client_tools.s: include/client_tools.c.s
+
+.PHONY : include/client_tools.s
+
+# target to generate assembly for a file
+include/client_tools.c.s:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.s
+.PHONY : include/client_tools.c.s
+
+include/server_cast.o: include/server_cast.c.o
+
+.PHONY : include/server_cast.o
+
+# target to build an object file
+include/server_cast.c.o:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_cast.c.o
+.PHONY : include/server_cast.c.o
+
+include/server_cast.i: include/server_cast.c.i
+
+.PHONY : include/server_cast.i
+
+# target to preprocess a source file
+include/server_cast.c.i:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_cast.c.i
+.PHONY : include/server_cast.c.i
+
+include/server_cast.s: include/server_cast.c.s
+
+.PHONY : include/server_cast.s
+
+# target to generate assembly for a file
+include/server_cast.c.s:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_cast.c.s
+.PHONY : include/server_cast.c.s
+
+include/server_tools.o: include/server_tools.c.o
+
+.PHONY : include/server_tools.o
+
+# target to build an object file
+include/server_tools.c.o:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_tools.c.o
+.PHONY : include/server_tools.c.o
+
+include/server_tools.i: include/server_tools.c.i
+
+.PHONY : include/server_tools.i
+
+# target to preprocess a source file
+include/server_tools.c.i:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_tools.c.i
+.PHONY : include/server_tools.c.i
+
+include/server_tools.s: include/server_tools.c.s
+
+.PHONY : include/server_tools.s
+
+# target to generate assembly for a file
+include/server_tools.c.s:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/server_tools.c.s
+.PHONY : include/server_tools.c.s
+
+include/user_tools.o: include/user_tools.c.o
+
+.PHONY : include/user_tools.o
+
+# target to build an object file
+include/user_tools.c.o:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/user_tools.c.o
+.PHONY : include/user_tools.c.o
+
+include/user_tools.i: include/user_tools.c.i
+
+.PHONY : include/user_tools.i
+
+# target to preprocess a source file
+include/user_tools.c.i:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/user_tools.c.i
+.PHONY : include/user_tools.c.i
+
+include/user_tools.s: include/user_tools.c.s
+
+.PHONY : include/user_tools.s
+
+# target to generate assembly for a file
+include/user_tools.c.s:
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/include/user_tools.c.s
+.PHONY : include/user_tools.c.s
 
 server.o: server.c.o
 
@@ -173,7 +281,7 @@ server.o: server.c.o
 
 # target to build an object file
 server.c.o:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.o
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.o
 .PHONY : server.c.o
 
 server.i: server.c.i
@@ -182,7 +290,7 @@ server.i: server.c.i
 
 # target to preprocess a source file
 server.c.i:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.i
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.i
 .PHONY : server.c.i
 
 server.s: server.c.s
@@ -191,7 +299,7 @@ server.s: server.c.s
 
 # target to generate assembly for a file
 server.c.s:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.s
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/build.make jalon01/CMakeFiles/RE216_JALON01_SERVER.dir/server.c.s
 .PHONY : server.c.s
 
 # Help Target
@@ -207,6 +315,18 @@ help:
 	@echo "... client.o"
 	@echo "... client.i"
 	@echo "... client.s"
+	@echo "... include/client_tools.o"
+	@echo "... include/client_tools.i"
+	@echo "... include/client_tools.s"
+	@echo "... include/server_cast.o"
+	@echo "... include/server_cast.i"
+	@echo "... include/server_cast.s"
+	@echo "... include/server_tools.o"
+	@echo "... include/server_tools.i"
+	@echo "... include/server_tools.s"
+	@echo "... include/user_tools.o"
+	@echo "... include/user_tools.i"
+	@echo "... include/user_tools.s"
 	@echo "... server.o"
 	@echo "... server.i"
 	@echo "... server.s"
@@ -221,6 +341,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

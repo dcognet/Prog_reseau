@@ -47,7 +47,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.buildLocation</key>
-					<value>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build</value>
+					<value>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.useDefaultBuildCmd</key>
@@ -83,7 +83,7 @@
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.build.location</key>
-					<value>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build</value>
+					<value>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build</value>
 				</dictionary>
 				<dictionary>
 					<key>org.eclipse.cdt.make.core.autoBuildTarget</key>
@@ -111,7 +111,7 @@
 		<link>
 			<name>[Source directory]</name>
 			<type>2</type>
-			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src</location>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src</location>
 		</link>
 		<link>
 			<name>[Subprojects]</name>
@@ -121,12 +121,12 @@
 		<link>
 			<name>[Subprojects]/RE216</name>
 			<type>2</type>
-			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src</location>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src</location>
 		</link>
 		<link>
 			<name>[Subprojects]/RE216_JALON01</name>
 			<type>2</type>
-			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01</location>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01</location>
 		</link>
 		<link>
 			<name>[Targets]</name>
@@ -149,14 +149,44 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Source Files/server_tools.c</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/server_tools.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Source Files/user_tools.c</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/user_tools.c</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Source Files/server_cast.c</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/server_cast.c</location>
+		</link>
+		<link>
 			<name>[Targets]/[exe] RE216_JALON01_SERVER/Source Files/server.c</name>
 			<type>1</type>
-			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/server.c</location>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/server.c</location>
 		</link>
 		<link>
 			<name>[Targets]/[exe] RE216_JALON01_SERVER/Header Files</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Header Files/server_tools.h</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/server_tools.h</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Header Files/user_tools.h</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/user_tools.h</location>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_SERVER/Header Files/server_cast.h</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/server_cast.h</location>
 		</link>
 		<link>
 			<name>[Targets]/[exe] RE216_JALON01_SERVER/CMake Rules</name>
@@ -189,14 +219,24 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
+			<name>[Targets]/[exe] RE216_JALON01_CLIENT/Source Files/client_tools.c</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.c</location>
+		</link>
+		<link>
 			<name>[Targets]/[exe] RE216_JALON01_CLIENT/Source Files/client.c</name>
 			<type>1</type>
-			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/client.c</location>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/client.c</location>
 		</link>
 		<link>
 			<name>[Targets]/[exe] RE216_JALON01_CLIENT/Header Files</name>
 			<type>2</type>
 			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
+			<name>[Targets]/[exe] RE216_JALON01_CLIENT/Header Files/client_tools.h</name>
+			<type>1</type>
+			<location>/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.h</location>
 		</link>
 		<link>
 			<name>[Targets]/[exe] RE216_JALON01_CLIENT/CMake Rules</name>

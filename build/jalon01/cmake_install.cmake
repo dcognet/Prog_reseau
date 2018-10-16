@@ -1,4 +1,4 @@
-# Install script for directory: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01
+# Install script for directory: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)

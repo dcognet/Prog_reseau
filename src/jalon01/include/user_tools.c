@@ -10,6 +10,8 @@ struct user{
   struct tm *date;
   u_short port;
   char *ip;
+  int send_to;
+  int receive_from;
 };
 
 //Create a new user-------------------------------------------------------------
@@ -25,6 +27,8 @@ struct user *create_user(int fd,struct sockaddr_in *pointeur_host_addr){
   new_user->date = pointeur_date;
   new_user->port = pointeur_host_addr->sin_port;
   new_user->ip = inet_ntoa(pointeur_host_addr->sin_addr);
+  new_user->send_to=0;
+  new_user->receive_from=0;
 
   return new_user;
 }
@@ -122,6 +126,24 @@ char *user_pseudo(struct user *user_list,int fd){
   return NULL;
 }
 
+//Return the user fd thank to the pseudo--------------------------------------------------------
+
+char *search_user_fd(struct user *user_list,char pseudo[]){
+
+  if (user_list==NULL){
+    return NULL;
+  }
+
+  while (user_list!=NULL){
+    if(strcmp(user_list->pseudo,pseudo)){
+      return user_list->fd;
+    }
+    user_list=user_list->next;
+  }
+
+  return NULL;
+}
+
 //Delete an user----------------------------------------------------------------
 
 struct user *delete_user(struct user *user_list,int fd){
@@ -193,4 +215,67 @@ int user_fd(struct user *user_list){
 //return the next user
 struct user *user_next(struct user *user_list){
   return user_list->next;
+}
+
+
+struct user *user_change_send_to(struct user *user,char pseudo[],int fd){
+
+  struct user *temp = user;
+
+  if(temp->fd==fd){
+    temp->send_to=search_user_fd(user,pseudo);
+  }
+  while(temp!=NULL){
+    if(temp->fd==fd){
+printf("send ps\n" );
+      temp->send_to=search_user_fd(user,pseudo);
+    }
+    temp=temp->next;
+  }
+
+  return user;
+}
+
+struct user *user_change_receive_from(struct user *user,char pseudo[],int fd){
+
+  struct user *temp = user;
+
+  if(strcmp(temp->pseudo,pseudo)){
+    temp->receive_from=fd;
+  }
+  while(temp!=NULL){
+    if(strcmp(temp->pseudo,pseudo)==0){
+printf("send ps\n" );
+      temp->receive_from=fd;
+    }
+    temp=temp->next;
+  }
+
+  return user;
+}
+
+int user_send(struct user *user_list,int fd){
+  if (user_list==NULL){
+    return NULL;
+  }
+  while (user_list!=NULL){
+    if(user_list->fd==fd){
+      return user_list->send_to;
+    }
+    user_list=user_list->next;
+  }
+  return NULL;
+}
+
+int user_receive_from(struct user *user_list,int fd){
+  if (user_list==NULL){
+    return NULL;
+  }
+  while (user_list!=NULL){
+    if(user_list->fd==fd){
+      return user_list->receive_from;
+    }
+    user_list=user_list->next;
+  }
+  return NULL;
 }

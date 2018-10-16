@@ -1,1 +1,1 @@
-/usr/bin/cc  -g   CMakeFiles/RE216_JALON01_SERVER.dir/server.c.o  -o RE216_JALON01_SERVER -rdynamic 
+/usr/bin/cc  -g   CMakeFiles/RE216_JALON01_SERVER.dir/include/server_tools.c.o CMakeFiles/RE216_JALON01_SERVER.dir/include/user_tools.c.o CMakeFiles/RE216_JALON01_SERVER.dir/include/server_cast.c.o CMakeFiles/RE216_JALON01_SERVER.dir/server.c.o  -o RE216_JALON01_SERVER -rdynamic 

@@ -338,14 +338,14 @@
 </target>
 <target name="Build" path="[Targets]/[exe] RE216_JALON01_SERVER" targetID="org.eclipse.cdt.make.MakeTargetBuilder">
 <buildCommand>/usr/bin/make</buildCommand>
-<buildArguments>-C "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build" </buildArguments>
+<buildArguments>-C "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build" </buildArguments>
 <buildTarget>RE216_JALON01_SERVER</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
 </target>
 <target name="Clean" path="[Targets]/[exe] RE216_JALON01_SERVER" targetID="org.eclipse.cdt.make.MakeTargetBuilder">
 <buildCommand>/usr/bin/cmake</buildCommand>
-<buildArguments>-E chdir "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01" "/usr/bin/cmake" -P "CMakeFiles/RE216_JALON01_SERVER.dir/cmake_clean.cmake"</buildArguments>
+<buildArguments>-E chdir "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01" "/usr/bin/cmake" -P "CMakeFiles/RE216_JALON01_SERVER.dir/cmake_clean.cmake"</buildArguments>
 <buildTarget></buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
@@ -366,14 +366,14 @@
 </target>
 <target name="Build" path="[Targets]/[exe] RE216_JALON01_CLIENT" targetID="org.eclipse.cdt.make.MakeTargetBuilder">
 <buildCommand>/usr/bin/make</buildCommand>
-<buildArguments>-C "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build" </buildArguments>
+<buildArguments>-C "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build" </buildArguments>
 <buildTarget>RE216_JALON01_CLIENT</buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>
 </target>
 <target name="Clean" path="[Targets]/[exe] RE216_JALON01_CLIENT" targetID="org.eclipse.cdt.make.MakeTargetBuilder">
 <buildCommand>/usr/bin/cmake</buildCommand>
-<buildArguments>-E chdir "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01" "/usr/bin/cmake" -P "CMakeFiles/RE216_JALON01_CLIENT.dir/cmake_clean.cmake"</buildArguments>
+<buildArguments>-E chdir "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01" "/usr/bin/cmake" -P "CMakeFiles/RE216_JALON01_CLIENT.dir/cmake_clean.cmake"</buildArguments>
 <buildTarget></buildTarget>
 <stopOnError>true</stopOnError>
 <useDefaultCommand>false</useDefaultCommand>

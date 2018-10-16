@@ -1,4 +1,4 @@
-# Install script for directory: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src
+# Install script for directory: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src
 
 # Set the install prefix
 if(NOT DEFINED CMAKE_INSTALL_PREFIX)
@@ -34,7 +34,7 @@ endif()
 
 if(NOT CMAKE_INSTALL_LOCAL_ONLY)
   # Include the install script for each subdirectory.
-  include("/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01/cmake_install.cmake")
+  include("/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01/cmake_install.cmake")
 
 endif()
 
@@ -46,5 +46,5 @@ endif()
 
 string(REPLACE ";" "\n" CMAKE_INSTALL_MANIFEST_CONTENT
        "${CMAKE_INSTALL_MANIFEST_FILES}")
-file(WRITE "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/${CMAKE_INSTALL_MANIFEST}"
+file(WRITE "/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/${CMAKE_INSTALL_MANIFEST}"
      "${CMAKE_INSTALL_MANIFEST_CONTENT}")

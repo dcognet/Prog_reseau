@@ -43,10 +43,10 @@ RM = /usr/bin/cmake -E remove -f
 EQUALS = =
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src
+CMAKE_SOURCE_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build
+CMAKE_BINARY_DIR = /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build
 
 # Include any dependencies generated for this target.
 include jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/depend.make
@@ -57,18 +57,42 @@ include jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/progress.make
 # Include the compile flags for this target's objects.
 include jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/flags.make
 
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/flags.make
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o"
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o   -c /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.c
+
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.i"
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.c > CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.i
+
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.s"
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/include/client_tools.c -o CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.s
+
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.requires:
+
+.PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.requires
+
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.provides: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.requires
+	$(MAKE) -f jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.provides.build
+.PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.provides
+
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.provides.build: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o
+
+
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/flags.make
-jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/client.c
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_1) "Building C object jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o"
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o   -c /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/client.c
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o: /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/client.c
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Building C object jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o"
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -o CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o   -c /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/client.c
 
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing C source to CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i"
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/client.c > CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -E /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/client.c > CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.i
 
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling C source to assembly CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s"
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01/client.c -o CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && /usr/bin/cc  $(C_DEFINES) $(C_INCLUDES) $(C_FLAGS) -S /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/client.c -o CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.s
 
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o.requires:
 
@@ -83,31 +107,34 @@ jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o.provides.build: jalon01/C
 
 # Object files for target RE216_JALON01_CLIENT
 RE216_JALON01_CLIENT_OBJECTS = \
+"CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o" \
 "CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o"
 
 # External object files for target RE216_JALON01_CLIENT
 RE216_JALON01_CLIENT_EXTERNAL_OBJECTS =
 
+jalon01/RE216_JALON01_CLIENT: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o
 jalon01/RE216_JALON01_CLIENT: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o
 jalon01/RE216_JALON01_CLIENT: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build.make
 jalon01/RE216_JALON01_CLIENT: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_2) "Linking C executable RE216_JALON01_CLIENT"
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/RE216_JALON01_CLIENT.dir/link.txt --verbose=$(VERBOSE)
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Linking C executable RE216_JALON01_CLIENT"
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && $(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/RE216_JALON01_CLIENT.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build: jalon01/RE216_JALON01_CLIENT
 
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/build
 
+jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/requires: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/include/client_tools.c.o.requires
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/requires: jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/client.c.o.requires
 
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/requires
 
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/clean:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 && $(CMAKE_COMMAND) -P CMakeFiles/RE216_JALON01_CLIENT.dir/cmake_clean.cmake
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 && $(CMAKE_COMMAND) -P CMakeFiles/RE216_JALON01_CLIENT.dir/cmake_clean.cmake
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/clean
 
 jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/depend:
-	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/src/jalon01 /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01 /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/jalon01_stub/build/jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/DependInfo.cmake --color=$(COLOR)
+	cd /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01 /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01 /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/build/jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : jalon01/CMakeFiles/RE216_JALON01_CLIENT.dir/depend
 
