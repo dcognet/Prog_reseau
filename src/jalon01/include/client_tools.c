@@ -53,11 +53,12 @@ void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* h
 //------------------------------------------------------------------------------
 
 
-void do_connect(int socket, struct sockaddr_in pointeur_serv_addr){
-  int i = connect(socket,(struct sockaddr*)&pointeur_serv_addr,sizeof(struct sockaddr));
+int do_connect(int socket, struct sockaddr_in pointeur_serv_addr){
+  int i = connect(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(struct sockaddr));
   if(i == -1){
     error("ERROR connexion client");
   }
+  return i;
 }
 
 //------------------------------------------------------------------------------
@@ -77,6 +78,34 @@ int do_read(int socket, char *buffer){
   int i = read(socket,buffer,MSG_SIZE);
   if(i == -1){
     error("ERROR read server");
+  }
+  return i;
+}
+
+void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr){
+  int i = bind(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(pointeur_serv_addr));
+  if(i == -1){
+    error("ERROR bind server");
+  }
+}
+
+
+//------------------------------------------------------------------------------
+
+void listen_client(int socket, int backlog){
+  int i = listen(socket, backlog);
+  if(i == -1){
+    error("ERROR listen server");
+  }
+}
+
+int do_accept(int socket, struct sockaddr_in *pointeur_host_addr){
+  size_t host_addr_size = sizeof(struct sockaddr_in);
+  int i = accept(socket, (struct sockaddr *)pointeur_host_addr,(socklen_t *)&host_addr_size);
+  printf("Je me connecte avec l'adresse : %s\n",inet_ntoa(pointeur_host_addr->sin_addr));
+
+  if(i == -1){
+    error("ERROR accepte server");
   }
   return i;
 }
