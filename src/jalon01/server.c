@@ -256,7 +256,7 @@ int main(int argc, char** argv){
           //&& user_send(user_list,fds[i].fd)==1
 
           //
-          if(strncmp(buffer,"y",1)==0 && user_receive_from(user_list,fds[i].fd)!=0 ){
+          if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=0 ){
             printf("yes\n" );
             sprintf(envoie,"[%s] accepted file transfert. %i",user_pseudo(user_list,fds[i].fd),user_port(user_list,fds[i].fd));
             printf("%s\n",envoie );
