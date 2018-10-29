@@ -117,7 +117,7 @@ int main(int argc,char** argv){
       }
 
 
-          if(strcmp(message, "Y") == 0){
+          if(strcmp(message,"Y") == 0){
 
             printf("Etape : Création socket\n");
             int socket_receiver= do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
@@ -137,12 +137,14 @@ int main(int argc,char** argv){
             struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
 
             new_socket_receiver=do_accept(socket_receiver,pointeur_host_addr);
-            printf("acces\n");
 
             fds[2].fd = new_socket_receiver;
             fds[2].events = POLLIN;
             do_read(new_socket_receiver,buffer);
-            fprintf(stdout,"%s\n",buffer);
+            int test_fd=open("/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/test.txt",O_RDWR);
+
+            write(test_fd,buffer,strlen(buffer));
+            //fprintf(stdout,"%s\n",buffer);
             close(new_socket_receiver);
             close(socket_receiver);
           }
@@ -160,6 +162,8 @@ int main(int argc,char** argv){
       fprintf(stdout,"%s\n",buffer);
 
       if(strncmp(buffer+4, "accepted file transfert.",strlen("accepted file transfert.")) == 0){
+        char port[4];
+        memset (port, '\0', strlen(port));
 
         printf("Etape : Création socket vers le recepteur\n");
         struct sockaddr_in pointeur_sender_addr;

@@ -242,9 +242,14 @@ int main(int argc, char** argv){
             while(buffer[space+strlen("/send ")]!=' '){
               space++;
             }
+            printf("ccc\n" );
+            printf("%i\n",space );
             memset(pseudo,'\0',MSG_SIZE);
+            printf("ccc\n" );
             strncpy(pseudo,buffer+strlen("/send "),space);
-            printf("%s\n",pseudo );
+            printf("ccc\n" );
+
+            printf("%s\n",pseudo);
             sprintf(envoie,"[%s] wants you to accept the transfer of the file named . Do you accept? [Y/n]",user_pseudo(user_list,fds[i].fd));
             printf("%s\n",envoie );
             unicast(fds[i].fd,envoie,user_list,pseudo);
@@ -261,7 +266,6 @@ int main(int argc, char** argv){
             sprintf(envoie,"[%s] accepted file transfert. %i",user_pseudo(user_list,fds[i].fd),user_port(user_list,fds[i].fd));
             printf("%s\n",envoie );
             unicast(fds[i].fd,envoie,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
-
             break;
           }
 
