@@ -18,9 +18,10 @@
 
 //Fonctions---------------------------------------------------------------------
 
-
 int broadcast(int sender_fd, const void *buffer, struct user *list_user);
 
 int unicast(int sender_fd, const void *buffer, struct user *list_user, char receiver_pseudo[]);
+
+int multicast(int sender_fd, char *buffer, struct user *list_user, char *channel_name);
 
 #endif
