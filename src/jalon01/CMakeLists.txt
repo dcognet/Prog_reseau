@@ -21,6 +21,8 @@ SET(SRC_SERVER
 				include/user_tools.c
 				include/server_cast.h
 				include/server_cast.c
+				include/server_channel.h
+				include/server_channel.c
         server.c)
 
 

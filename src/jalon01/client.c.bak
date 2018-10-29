@@ -9,7 +9,6 @@
 #include <arpa/inet.h>
 #include <time.h>
 #include "include/client_tools.h"
-#include <signal.h>
 
 
 
@@ -17,7 +16,8 @@
 
 
 int main(int argc,char** argv){
-  if (argc != 3){
+  if (argc != 3)
+  {
     fprintf(stderr,"usage: RE216_CLIENT  port hostname\n");
     return 1;
   }
@@ -26,10 +26,11 @@ int main(int argc,char** argv){
 
   char buffer[MSG_SIZE];
   char saisie[MSG_SIZE];
-  char message[MSG_SIZE];
-  int socket, valeur;
+  char copie[MSG_SIZE];
+  int socket;
   struct sockaddr_in pointeur_serv_addr;
-  int i = 0;
+  const void* msg = copie;
+  int i=0;
 
   //get the socket--------------------------------------------------------------
   printf("Etape : Création socket\n");
@@ -49,57 +50,62 @@ int main(int argc,char** argv){
   do_read(socket,buffer);
   printf("%s\n",buffer);
 
-  while(1){
+
+
+
+
+ while(1){
+
     memset(saisie,'\0',MSG_SIZE);
     do_read(STDIN_FILENO,saisie);
     //strcpy(saisie,"/nick ");
     //strcat(saisie,argv[3]);
-    if(strncmp(saisie,"/nick ",strlen("/nick ")) == 0){
-      memset (message, '\0', MSG_SIZE);
-      strncpy(message,saisie,strlen(saisie)-1);
-      handle_client_message(socket,message);
+    if(strncmp(saisie,"/nick ",strlen("/nick "))==0){
+      memset (copie, '\0', MSG_SIZE);
+      strncpy(copie,saisie,strlen(saisie)-1);
+      handle_client_message(socket,copie);
       do_read(socket,buffer);
-      printf("%s\n",buffer);
-      if(strcmp(buffer,"[Serveur] : Pseudo déjà existant, veuillez en choisir un nouveau")!=0){
+      if(strncmp(buffer,"Pseudo déjà existant, veuillez en choisir un nouveau",strlen("Pseudo déjà existant, veuillez en choisir un nouveau"))==0){
+        printf("%s\n",buffer);
+      }
+      else{
+        printf("Identification réussie\n%s\n",buffer);
         break;
       }
     }
     else{
-      printf("[Cient] : veuillez respecter la synthaxe\n");
+      printf("Identification échec : veuillez respecter la synthaxe\n");
     }
   }
 
-  pid_t pid = fork();
+  pid_t pid=fork();
 
   while(1){
 
-    if(pid == 0){
+
+    if(pid==0){
       //read what the client has to say---------------------------------------------
       memset (buffer, '\0', strlen(buffer));
-      valeur = do_read(socket,buffer);
+      do_read(socket,buffer);
       fprintf(stdout,"%s\n",buffer);
-      if(valeur == 0){
-        printf("Fermeture connexion client\n");
-        kill(pid,SIGKILL);
-        break;
-      }
 
     }
     else{
       //get user input--------------------------------------------------------------
       do_read(STDIN_FILENO,saisie);
-      memset (message, '\0', MSG_SIZE);
-      strncpy(message,saisie,strlen(saisie)-1);
+      memset (copie, '\0', MSG_SIZE);
+      strncpy(copie,saisie,strlen(saisie)-1);
+      msg = copie;
 
       //send message to the server--------------------------------------------------
-      handle_client_message(socket,message);
+      handle_client_message(socket,msg);
 
       //connexion end---------------------------------------------------------------
-      if(strncmp(message, "/quit",strlen("/quit")-1) == 0 && strlen(message) == strlen("/quit")){
+      if(strncmp(msg, "/quit",strlen("/quit")-1) == 0){
         printf("Fermeture connexion client\n");
-        kill(pid,SIGKILL);
         break;
       }
+
     }
   }
 

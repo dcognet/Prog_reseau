@@ -27,10 +27,10 @@ void do_connect(int socket, struct sockaddr_in pointeur_serv_addr);
 //------------------------------------------------------------------------------
 
 
-void handle_client_message(int socket, const void *message);
+void handle_client_message(int socket, char *message);
 
 //------------------------------------------------------------------------------
 
-void do_read(int socket, char *buffer);
+int do_read(int socket, char *buffer);
 
 #endif

@@ -11,40 +11,32 @@
 #include <arpa/inet.h>
 #include "include/server_tools.h"
 #include "include/user_tools.h"
-#include "include/server_cast.H"
+#include "include/server_cast.h"
+#include "include/server_channel.h"
 
-
-// char *msg_to_send(char sender[],char buffer[]){
-//   strcat(sender,"|");
-//   strcat(sender,buffer);
-//   printf("%s\n", sender);
-//   return sender;
-// }
+#define nb_co_max 3
 
 //Corps-------------------------------------------------------------------------
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 
-  if (argc != 2)
-  {
+  if (argc != 2){
     fprintf(stderr, "usage: RE216_SERVER port\n");
     return 1;
   }
 
   //Variables--------------------------------------------------------------
 
-  int i, valeur,event_fd,new_socket;
+  int i, valeur, event_fd, new_socket, space;
   int nb_co = 0;
-  int nb_co_max = 3;
   struct pollfd fds[200];
-  char buffer[MSG_SIZE];
-  char pseudo[MSG_SIZE];
-  struct user *user_list=NULL;
+  struct user *user_list = NULL;
+  struct channel *channel_list = NULL;
   struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
+  char channel_name[MSG_SIZE];
   char envoie[MSG_SIZE];
-  char *msg=malloc(MSG_SIZE*sizeof(char));
-  char server[MSG_SIZE]="Server";
+  char buffer[MSG_SIZE];
+  char information[MSG_SIZE];
 
 
 
@@ -72,6 +64,12 @@ int main(int argc, char** argv)
 
   while(1){
 
+    memset(buffer,'\0',MSG_SIZE);
+    memset(information,'\0',MSG_SIZE);
+    memset(channel_name,'\0',MSG_SIZE);
+    memset(envoie,'\0',MSG_SIZE);
+
+
     // wait for an activity
 
     event_fd = poll(fds,nb_co_max+1,-1);
@@ -87,11 +85,7 @@ int main(int argc, char** argv)
           user_list = user_add(user_list,new_socket,pointeur_host_addr);
 
           if(nb_co >= nb_co_max){
-
-            // refuse the connection if there is too much client
-
-            printf("Acceptation d'un nouveau client impossibla car trop de connection\n");
-            do_write(new_socket,"Server cannot accept incoming connections anymore. Try again later.");
+            do_write(new_socket,"[Server] : Server cannot accept incoming connections anymore. Try again later.");
             close_socket(new_socket);
             break;
           }
@@ -101,97 +95,150 @@ int main(int argc, char** argv)
           fds[i].events = POLLIN;
           nb_co++;
           printf("Nombre de connection = %i\n",nb_co);
-          memset(buffer,'\0',MSG_SIZE);
-
-          strcpy(buffer,"[Server] : please logon with /nick <your pseudo>");
-          do_write(fds[i].fd,buffer);
+          do_write(fds[i].fd,"[Server] : please logon with /nick <your pseudo>");
           break;
         }
       }
-      else
-      {
+      else{
         if(fds[i].revents == POLLIN){
 
           //read what the do_readclient has to say------------------------------
-          memset(buffer,'\0',MSG_SIZE);
-
           valeur = do_read(fds[i].fd,buffer);
-          printf("Le message reçu est: %s\n",buffer);
+          printf("Le message reçu est: %s %li\n",buffer,strlen(buffer));
 
           //command /nick
-
           if(strncmp(buffer,"/nick",strlen("/nick")) == 0){
-            memset(pseudo,'\0',MSG_SIZE);
-            strcpy(pseudo,buffer+strlen("/nick "));
-            strcpy(envoie,"[Server] Welcome on the chat : ");
-            strncpy(pseudo,buffer+6,10);
-            printf("%s\n",pseudo);
-            user_list = user_change_pseudo(user_list,pseudo,fds[i].fd);
-            do_write(fds[i].fd,strcat(envoie,user_pseudo(user_list,fds[i].fd)));
+            strcpy(information,buffer+strlen("/nick "));
+            printf("L'information reçue est: %s %li\n",information,strlen(information));
+
+            if(user_look_for_pseudo(user_list,information) == 0){
+              user_list = user_change_pseudo(user_list,information,fds[i].fd);
+              strcpy(envoie,"[Serveur] : Welcome on the chat : ");
+              do_write(fds[i].fd,strcat(envoie,information));
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This pseudo is already used, please take another one");
+            }
             break;
           }
 
           //command /who
-
           if(strcmp(buffer,"/who") == 0){
-            display_user_list(user_list,fds[i].fd);
+            strcpy(envoie,user_display_list(user_list,fds[i].fd));
+            do_write(fds[i].fd,envoie);
             break;
           }
 
           //command /whois
-
           if(strncmp(buffer,"/whois",strlen("/whois")) == 0){
-            memset(pseudo,'\0',MSG_SIZE);
-            strcpy(pseudo,buffer+strlen("/whois "));
-            user_date_connexion(fds[i].fd,user_list,pseudo);
+            strcpy(information,buffer+strlen("/whois "));
+            strcpy(envoie,user_connexion_information(fds[i].fd,user_list,information));
+            do_write(fds[i].fd,envoie);
             break;
           }
 
           // command broadcast--------------------------------------
-
-          if(strncmp(buffer,"/msgall",7)==0){
-            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall ") );
+          if(strncmp(buffer,"/msgall",strlen("/msgall")) == 0){
+            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall "));
             broadcast(fds[i].fd,envoie,user_list);
             break;
           }
-          //clean up client socket----------------------------------------------
 
-          if(strncmp(buffer, "/quit",strlen("/quit")) == 0 || valeur == 0){
+          //clean up client socket----------------------------------------------
+          if(strcmp(buffer,"/quit") == 0 || valeur == 0){
+            strcpy(channel_name,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            if(user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 0){
+              channel_list = channel_down_number_member(channel_list,channel_name);
+              if(channel_nombre_membre(channel_look_for_channel(channel_list,channel_name)) == 0){
+                channel_list =  channel_delete(channel_list,channel_name);
+              }
+            }
             user_list = delete_user(user_list,fds[i].fd);
             printf("Fermeture socket client\n");
             close_socket(fds[i].fd);
             fds[i].fd = -1;
             fds[i].events = -1;
             nb_co--;
-            printf("Nombre de connection = %i\n",nb_co);
             break;
           }
 
-            // command unicast-------------------------------------------
-          if(strncmp(buffer,"/msg",4)==0){
-            int space=0;
+          // quit the channel---------------------------------------------------
+          if(strncmp(buffer,"/quit",strlen("/quit")) == 0){
+            strcpy(channel_name,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            strcpy(information,buffer+strlen("/quit "));
+            if(strcmp(channel_name,information) == 0){
+              channel_list = channel_down_number_member(channel_list,channel_name);
+              user_list = user_change_name_channel(user_list,"Unspecified channel",fds[i].fd);
+              if(channel_nombre_membre(channel_look_for_channel(channel_list,channel_name)) == 0){
+                channel_list =  channel_delete(channel_list,channel_name);
+              }
+              sprintf(envoie,"[Server] You left the channel : %s",channel_name);
+
+            }
+            else
+              sprintf(envoie,"[Server] : The channel %s does not exist",channel_name);
+            do_write(fds[i].fd,envoie);
+            break;
+          }
+
+          // command unicast-------------------------------------------
+          if(strncmp(buffer,"/msg",strlen("/msg")) == 0){
+            space = 0;
             while(buffer[space+strlen("/msg ")]!=' '){
               space++;
             }
-            memset(pseudo,'\0',MSG_SIZE);
-            strncpy(pseudo,buffer+strlen("/msg "),space);
-            printf("%s\n",pseudo );
-            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+space+strlen("/msg ") );
-            printf("%s\n",envoie );
-            unicast(fds[i].fd,envoie,user_list,pseudo);
+            strncpy(information,buffer+strlen("/msg "),space);
+            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+space+strlen("/msg "));
+            unicast(envoie,user_list,information);
             break;
           }
 
+          // command create--------------------------------------
+          if(strncmp(buffer,"/create",strlen("/create")) == 0){
+            strcpy(information,buffer+strlen("/create "));
+            if(channel_look_for_name(channel_list,information) == 0 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
+              channel_list = channel_add(channel_list,information);
+              sprintf(envoie,"[%s] : You have created channel : %s",information,information);
+              do_write(fds[i].fd,envoie);
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This name of channel is already used");
+            }
+            break;
+          }
 
+          // commande join ---------------------------------
+          if(strncmp(buffer,"/join",strlen("/join")) == 0){
+            strcpy(information,buffer+strlen("/join "));
+            if(channel_look_for_name(channel_list,information) == 1 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
+              channel_list = channel_up_number_member(channel_list,information);
+              user_list = user_change_name_channel(user_list,information,fds[i].fd);
+              sprintf(envoie,"[%s] : You have joined : %s",information,information);
+              do_write(fds[i].fd,envoie);
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This channel does not exist or you already are in a channel");
+            }
+            break;
+          }
 
+          // multicast channel ---------------------------------
+          if(strcmp(user_channel_name(user_look_for_user(user_list,fds[i].fd)),"Unspecified channel") != 0){
+            strcpy(envoie,buffer);
+            printf("channel\n");
+            multicast(fds[i].fd,envoie,user_list,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            break;
+          }
 
           //we write back to the client---------------------------------------------
           sprintf(envoie,"[Server] %s",buffer);
           do_write(fds[i].fd,envoie);
+
         }
       }
     }
   }
+
 
   //clean up server socket------------------------------------------------------
   printf("Fermeture socket serveur\n");

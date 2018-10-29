@@ -71,7 +71,6 @@ int do_accept(int socket, struct sockaddr_in *pointeur_host_addr){
 //------------------------------------------------------------------------------
 
 int do_read(int socket, char *buffer){
-  memset (buffer, '\0', MSG_SIZE);
   int i = read(socket,buffer,MSG_SIZE);
   if(i == -1){
     error("ERROR read server");
