@@ -27,7 +27,7 @@ int main(int argc, char** argv){
 
   //Variables--------------------------------------------------------------
 
-  int i, valeur, event_fd, new_socket, space;
+  int i, valeur, event_fd, new_socket, space,file_name_size;
   int nb_co = 0;
   struct pollfd fds[200];
   struct user *user_list = NULL;
@@ -242,16 +242,20 @@ int main(int argc, char** argv){
             while(buffer[space+strlen("/send ")]!=' '){
               space++;
             }
-            printf("ccc\n" );
-            printf("%i\n",space );
-            memset(pseudo,'\0',MSG_SIZE);
-            printf("ccc\n" );
-            strncpy(pseudo,buffer+strlen("/send "),space);
-            printf("ccc\n" );
+            char file_name[MSG_SIZE];
+            file_name_size=0;
 
-            printf("%s\n",pseudo);
-            sprintf(envoie,"[%s] wants you to accept the transfer of the file named . Do you accept? [Y/n]",user_pseudo(user_list,fds[i].fd));
-            printf("%s\n",envoie );
+            while(buffer[strlen(buffer)-file_name_size]!='/'){  //on cherche la taille du nom du fichier que l'on envoie
+              file_name_size++;
+            }
+
+            strcpy(file_name,buffer+strlen(buffer)-file_name_size+1);
+            printf("file name %s\n",file_name);
+
+            memset(pseudo,'\0',MSG_SIZE);
+            strncpy(pseudo,buffer+strlen("/send "),space);
+
+            sprintf(envoie,"[%s] wants you to accept the transfer of the file \"%s\" . Do you accept? [Y/n]",user_pseudo(user_list,fds[i].fd),file_name);
             unicast(fds[i].fd,envoie,user_list,pseudo);
             user_list=user_change_send_to(user_list,pseudo,fds[i].fd);
             user_list=user_change_receive_from(user_list,pseudo,fds[i].fd);
@@ -262,9 +266,7 @@ int main(int argc, char** argv){
 
           //
           if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=0 ){
-            printf("yes\n" );
-            sprintf(envoie,"[%s] accepted file transfert. %i",user_pseudo(user_list,fds[i].fd),user_port(user_list,fds[i].fd));
-            printf("%s\n",envoie );
+            sprintf(envoie,"[%s] accepted file transfert.",user_pseudo(user_list,fds[i].fd));
             unicast(fds[i].fd,envoie,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
             break;
           }
@@ -272,7 +274,6 @@ int main(int argc, char** argv){
           //we write back to the client---------------------------------------------
           sprintf(envoie,"[Server] %s",buffer);
           do_write(fds[i].fd,envoie);
-
         }
       }
     }

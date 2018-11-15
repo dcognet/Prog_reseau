@@ -31,6 +31,11 @@ int main(int argc,char** argv){
   char saisie[MSG_SIZE];
   char message[MSG_SIZE];
   char copie[MSG_SIZE];
+  char file_to_send_path[MSG_SIZE];
+  char file_receive_path[MSG_SIZE];
+  char sender_name[MSG_SIZE];
+  char file_receive_name[MSG_SIZE];
+
   int socket;
   struct sockaddr_in pointeur_serv_addr;
   int event_fd;
@@ -71,7 +76,7 @@ int main(int argc,char** argv){
       }
     }
     else{
-      printf("[Cient] : veuillez respecter la synthaxe\n");
+      printf("[Client] : veuillez respecter la synthaxe\n");
     }
   }
 
@@ -92,7 +97,6 @@ int main(int argc,char** argv){
     event_fd = poll(fds,3,-1);
 
     if(fds[1].revents == POLLIN){
-      printf("test\n" );
       //get user input--------------------------------------------------------------
       do_read(STDIN_FILENO,saisie);
       memset (message, '\0', MSG_SIZE);
@@ -108,43 +112,45 @@ int main(int argc,char** argv){
       }
 
       if(strncmp(message, "/send",strlen("/send")) == 0){
+        memset(file_to_send_path,'\0',MSG_SIZE);
 
-        file_fd=open("/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/file.txt",O_RDONLY);
-        printf("%i\n",file_fd );
-        memset (file, '\0', MSG_SIZE);
+      //    /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/file.txt
+
+        for(int i =strlen("/send ")+1;i<strlen(message);i++){
+          if(message[i]==' '){
+            strcpy(file_to_send_path,message+i+1);
+            break;
+          }
+        }
+        file_fd=open(file_to_send_path,O_RDONLY);
         do_read(file_fd,file);
-        printf("%s\n",file );
       }
 
 
           if(strcmp(message,"Y") == 0){
 
-            printf("Etape : Création socket\n");
             int socket_receiver= do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
             //init the serv_add structure
-            printf("Etape : Informations serveur\n");
             struct sockaddr_in pointeur_recep_addr;
             get_addr_info("1025", &pointeur_recep_addr,"127.0.0.1");
 
             //perform the binding---------------------------------------------------------
-            printf("Etape : Bind\n");
             do_bind(socket_receiver,pointeur_recep_addr);
 
-            //listen for at most 20 concurrent client-------------------------------------
-            printf("Etape : Ecoute\n");
+            //listen for at most 1 concurrent client-------------------------------------
             listen_client(socket_receiver,1);
             struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
 
             new_socket_receiver=do_accept(socket_receiver,pointeur_host_addr);
-
+            printf("%d\n",new_socket_receiver );
             fds[2].fd = new_socket_receiver;
             fds[2].events = POLLIN;
             do_read(new_socket_receiver,buffer);
-            int test_fd=open("/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/test.txt",O_RDWR);
-
+            sprintf(file_receive_path,"/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/inbox/%s",file_receive_name);
+            int test_fd=open(file_receive_path,O_RDWR|O_CREAT);
             write(test_fd,buffer,strlen(buffer));
-            //fprintf(stdout,"%s\n",buffer);
+            printf("%s saved in %s\n",file_receive_name,file_receive_path);
             close(new_socket_receiver);
             close(socket_receiver);
           }
@@ -161,25 +167,45 @@ int main(int argc,char** argv){
       valeur=do_read(socket,buffer);
       fprintf(stdout,"%s\n",buffer);
 
-      if(strncmp(buffer+4, "accepted file transfert.",strlen("accepted file transfert.")) == 0){
+      //on chercher le nom de l'envoyeur
+      memset(sender_name,'\0',MSG_SIZE);
+      for(int j=1;j<=MSG_SIZE;j++){
+        if(buffer[j]==']'){
+          strncpy(sender_name,buffer+1,j-1);
+          break;
+        }
+      }
+      memset(file_receive_name,'\0',MSG_SIZE);
+
+      if(strncmp(buffer+strlen(sender_name)+3, "wants you to accept the transfer of the file",strlen("wants you to accept the transfer of the file")) == 0){
+        for(int j=1;j<=MSG_SIZE;j++){
+          if(buffer[j+strlen(sender_name)+3+strlen("wants you to accept the transfer of the file\"")]=='\"'){
+
+            strncpy(file_receive_name,buffer+strlen(sender_name)+3+strlen(" wants you to accept the transfer of the file\""),j-1);
+            break;
+          }
+        }
+      }
+      printf("%s\n",file_receive_name );
+
+
+      if(strncmp(buffer+strlen(sender_name)+3, "accepted file transfert.",strlen("accepted file transfert.")) == 0){
         char port[4];
         memset (port, '\0', strlen(port));
 
-        printf("Etape : Création socket vers le recepteur\n");
         struct sockaddr_in pointeur_sender_addr;
         int socket_sender;
         socket_sender = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
         //init the serv_add structure-------------------------------------------------
-        printf("Etape : Informations du recepteur\n");
         get_addr_info("1025", &pointeur_sender_addr,"127.0.0.1");
 
         //connect to remote socket----------------------------------------------------
-        printf("Connexion au recpeteur\n");
         do_connect(socket_sender,pointeur_sender_addr);
         fds[2].fd = socket_sender;
         fds[2].events = POLLIN;
         handle_client_message(socket_sender,file);
+        printf("%s\n", file);
       }
 
       if(valeur == 0){

@@ -102,8 +102,6 @@ void listen_client(int socket, int backlog){
 int do_accept(int socket, struct sockaddr_in *pointeur_host_addr){
   size_t host_addr_size = sizeof(struct sockaddr_in);
   int i = accept(socket, (struct sockaddr *)pointeur_host_addr,(socklen_t *)&host_addr_size);
-  printf("Je me connecte avec l'adresse : %s\n",inet_ntoa(pointeur_host_addr->sin_addr));
-
   if(i == -1){
     error("ERROR accepte server");
   }
