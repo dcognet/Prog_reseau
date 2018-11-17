@@ -81,7 +81,7 @@ int do_read(int socket, char *buffer){
 //------------------------------------------------------------------------------
 
 void do_write(int fd, const void *buffer){
-  size_t i = write(fd,buffer,MSG_SIZE);
+  size_t i = write(fd,buffer,size_struc_trame());
   if(i == -1){
     error("ERROR write server");
   }

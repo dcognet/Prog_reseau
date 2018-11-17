@@ -92,7 +92,7 @@ struct user *user_change_pseudo(struct user *user,char pseudo[],int fd){
 
 char *user_display_list(struct user *list_user,int fd){
   char *buffer = malloc(sizeof(char)*MSG_SIZE);
-  strcpy(buffer,"[Server] Online users are :");
+  strcpy(buffer,"Online users are :");
   char pseudo[MSG_SIZE];
   memset(pseudo,'\0',MSG_SIZE);
 
@@ -151,7 +151,7 @@ char *user_connexion_information(int fd, struct user *user_list,char pseudo[]){
     if(strcmp(pseudo,user_list->pseudo) == 0){
       struct tm *date = user_list->date;
 
-      sprintf(buffer,"[Server] : %s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
+      sprintf(buffer,"%s connected since %d-%02d-%02d@%02d:%02d with IP address %s and port number %d",
       pseudo,
       date->tm_year + 1900,
       date->tm_mon + 1,
@@ -284,7 +284,6 @@ struct user *user_change_send_to(struct user *user,char pseudo[],int fd){
   }
   while(temp!=NULL){
     if(temp->fd==fd){
-printf("send ps\n" );
       temp->send_to=search_user_fd(user,pseudo);
     }
     temp=temp->next;
@@ -302,7 +301,6 @@ struct user *user_change_receive_from(struct user *user,char pseudo[],int fd){
   }
   while(temp!=NULL){
     if(strcmp(temp->pseudo,pseudo)==0){
-printf("send ps\n" );
       temp->receive_from=fd;
     }
     temp=temp->next;

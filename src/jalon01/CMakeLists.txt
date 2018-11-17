@@ -6,6 +6,8 @@ project(RE216_JALON01)
 SET(SRC_CLIENT
 	include/client_tools.h
 	include/client_tools.c
+	include/message.h
+	include/message.c
 	client.c
 	)
 
@@ -23,6 +25,8 @@ SET(SRC_SERVER
 				include/server_cast.c
 				include/server_channel.h
 				include/server_channel.c
+				include/message.h
+				include/message.c
         server.c)
 
 

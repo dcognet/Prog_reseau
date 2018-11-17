@@ -13,8 +13,10 @@
 #include "include/user_tools.h"
 #include "include/server_cast.h"
 #include "include/server_channel.h"
+#include "include/message.h"
 
-#define nb_co_max 3
+
+#define nb_co_max 20
 
 //Corps-------------------------------------------------------------------------
 
@@ -38,6 +40,11 @@ int main(int argc, char** argv){
   char buffer[MSG_SIZE];
   char information[MSG_SIZE];
   char pseudo[MSG_SIZE];
+
+  struct trame *trame=NULL;
+  trame=trame_init(trame);
+  trame=trame_set_to_zero(trame);
+
 
 
 
@@ -70,6 +77,8 @@ int main(int argc, char** argv){
     memset(information,'\0',MSG_SIZE);
     memset(channel_name,'\0',MSG_SIZE);
     memset(envoie,'\0',MSG_SIZE);
+    trame=trame_set_to_zero(trame);
+
 
 
     // wait for an activity
@@ -87,7 +96,9 @@ int main(int argc, char** argv){
           user_list = user_add(user_list,new_socket,pointeur_host_addr);
 
           if(nb_co >= nb_co_max){
-            do_write(new_socket,"[Server] : Server cannot accept incoming connections anymore. Try again later.");
+            trame=trame_set_message(trame,"Server cannot accept incoming connections anymore. Try again later.");
+            trame=trame_set_sender_name(trame,"Server");
+            do_write(fds[i].fd,trame);
             close_socket(new_socket);
             break;
           }
@@ -97,7 +108,9 @@ int main(int argc, char** argv){
           fds[i].events = POLLIN;
           nb_co++;
           printf("Nombre de connection = %i\n",nb_co);
-          do_write(fds[i].fd,"[Server] : please logon with /nick <your pseudo>");
+          trame=trame_set_message(trame,"please logon with /nick <your pseudo>");
+          trame=trame_set_sender_name(trame,"Server");
+          do_write(fds[i].fd,trame);
           break;
         }
       }
@@ -106,28 +119,34 @@ int main(int argc, char** argv){
 
           //read what the do_readclient has to say------------------------------
           valeur = do_read(fds[i].fd,buffer);
-          printf("Le message reçu est: %s %li\n",buffer,strlen(buffer));
+          printf("Le message reçu est: %s\n",buffer);
 
           //command /nick
           if(strncmp(buffer,"/nick",strlen("/nick")) == 0){
             strcpy(information,buffer+strlen("/nick "));
-            printf("L'information reçue est: %s %li\n",information,strlen(information));
+            printf("L'information reçue est: %s\n",information);
 
             if(user_look_for_pseudo(user_list,information) == 0){
               user_list = user_change_pseudo(user_list,information,fds[i].fd);
-              strcpy(envoie,"[Serveur] : Welcome on the chat : ");
-              do_write(fds[i].fd,strcat(envoie,information));
+              sprintf(envoie,"Welcome on the chat : %s",information);
+              trame=trame_set_message(trame,envoie);
+              trame=trame_set_sender_name(trame,"Server");
+              do_write(fds[i].fd,trame);
             }
             else{
-              do_write(fds[i].fd,"[Serveur] : This pseudo is already used, please take another one");
+              trame=trame_set_message(trame,"This pseudo is already used, please take another one");
+              trame=trame_set_sender_name(trame,"Server");
+              do_write(fds[i].fd,trame);
             }
             break;
           }
 
           //command /who
           if(strcmp(buffer,"/who") == 0){
+            trame=trame_set_sender_name(trame,"Server");
             strcpy(envoie,user_display_list(user_list,fds[i].fd));
-            do_write(fds[i].fd,envoie);
+            trame=trame_set_message(trame,envoie);
+            do_write(fds[i].fd,trame);
             break;
           }
 
@@ -135,14 +154,17 @@ int main(int argc, char** argv){
           if(strncmp(buffer,"/whois",strlen("/whois")) == 0){
             strcpy(information,buffer+strlen("/whois "));
             strcpy(envoie,user_connexion_information(fds[i].fd,user_list,information));
-            do_write(fds[i].fd,envoie);
+            trame=trame_set_sender_name(trame,"Server");
+            trame=trame_set_message(trame,envoie);
+            do_write(fds[i].fd,trame);
             break;
           }
 
           // command broadcast--------------------------------------
           if(strncmp(buffer,"/msgall",strlen("/msgall")) == 0){
-            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall "));
-            broadcast(fds[i].fd,envoie,user_list);
+            trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            trame=trame_set_message(trame,buffer+strlen("/msgall "));
+            broadcast(fds[i].fd,trame,user_list);
             break;
           }
 
@@ -174,12 +196,15 @@ int main(int argc, char** argv){
               if(channel_nombre_membre(channel_look_for_channel(channel_list,channel_name)) == 0){
                 channel_list =  channel_delete(channel_list,channel_name);
               }
-              sprintf(envoie,"[Server] You left the channel : %s",channel_name);
+              sprintf(envoie,"You left the channel : %s",channel_name);
 
             }
             else
-              sprintf(envoie,"[Server] : The channel %s does not exist",channel_name);
-            do_write(fds[i].fd,envoie);
+              sprintf(envoie,"The channel %s does not exist",channel_name);
+
+            trame=trame_set_sender_name(trame,"Server");
+            trame=trame_set_message(trame,envoie);
+            do_write(fds[i].fd,trame);
             break;
           }
 
@@ -191,10 +216,10 @@ int main(int argc, char** argv){
           }
           memset(pseudo,'\0',MSG_SIZE);
           strncpy(pseudo,buffer+strlen("/msg "),space);
-          printf("%s\n",pseudo );
           sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+space+strlen("/msg ") );
-          printf("%s\n",envoie );
-          unicast(fds[i].fd,envoie,user_list,pseudo);
+          trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+          trame=trame_set_message(trame,buffer+1+space+strlen("/msg "));
+          unicast(fds[i].fd,trame,user_list,pseudo);
           break;
         }
 
@@ -203,12 +228,15 @@ int main(int argc, char** argv){
             strcpy(information,buffer+strlen("/create "));
             if(channel_look_for_name(channel_list,information) == 0 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
               channel_list = channel_add(channel_list,information);
-              sprintf(envoie,"[%s] : You have created channel : %s",information,information);
-              do_write(fds[i].fd,envoie);
+              sprintf(envoie,"You have created channel : %s",information);
+              trame=trame_set_sender_name(trame,information);
+              trame=trame_set_message(trame,envoie);
             }
             else{
-              do_write(fds[i].fd,"[Serveur] : This name of channel is already used");
+              trame=trame_set_sender_name(trame,"Server");
+              trame=trame_set_message(trame,"This name of channel is already used");
             }
+            do_write(fds[i].fd,trame);
             break;
           }
 
@@ -218,20 +246,24 @@ int main(int argc, char** argv){
             if(channel_look_for_name(channel_list,information) == 1 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
               channel_list = channel_up_number_member(channel_list,information);
               user_list = user_change_name_channel(user_list,information,fds[i].fd);
-              sprintf(envoie,"[%s] : You have joined : %s",information,information);
-              do_write(fds[i].fd,envoie);
+              sprintf(envoie,"You have joined : %s",information);
+              trame=trame_set_sender_name(trame,information);
+              trame=trame_set_message(trame,envoie);
             }
             else{
-              do_write(fds[i].fd,"[Serveur] : This channel does not exist or you already are in a channel");
+              trame=trame_set_sender_name(trame,"Server");
+              trame=trame_set_message(trame,"This channel does not exist or you already are in a channel");
             }
+            do_write(fds[i].fd,trame);
             break;
           }
 
           // multicast channel ---------------------------------
           if(strcmp(user_channel_name(user_look_for_user(user_list,fds[i].fd)),"Unspecified channel") != 0){
-            strcpy(envoie,buffer);
-            printf("channel\n");
-            multicast(fds[i].fd,envoie,user_list,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            trame=trame_set_channel_name(trame,user_pseudo(user_list,fds[i].fd));
+            trame=trame_set_sender_name(trame,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            trame=trame_set_message(trame,buffer);
+            multicast(fds[i].fd,trame,user_list,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
             break;
           }
 
@@ -250,30 +282,45 @@ int main(int argc, char** argv){
             }
 
             strcpy(file_name,buffer+strlen(buffer)-file_name_size+1);
-            printf("file name %s\n",file_name);
 
             memset(pseudo,'\0',MSG_SIZE);
             strncpy(pseudo,buffer+strlen("/send "),space);
 
-            sprintf(envoie,"[%s] wants you to accept the transfer of the file \"%s\" . Do you accept? [Y/n]",user_pseudo(user_list,fds[i].fd),file_name);
-            unicast(fds[i].fd,envoie,user_list,pseudo);
+            sprintf(envoie,"wants you to accept the transfer of the file \"%s\" . Do you accept? [Y/N]",file_name);
+            trame=trame_set_file(trame,file_name);
+            trame=trame_set_message(trame,envoie);
+            trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            unicast(fds[i].fd,trame,user_list,pseudo);
             user_list=user_change_send_to(user_list,pseudo,fds[i].fd);
             user_list=user_change_receive_from(user_list,pseudo,fds[i].fd);
             break;
           }
 
-          //&& user_send(user_list,fds[i].fd)==1
 
           //
-          if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=0 ){
-            sprintf(envoie,"[%s] accepted file transfert.",user_pseudo(user_list,fds[i].fd));
-            unicast(fds[i].fd,envoie,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
+          if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
+            trame=trame_set_message(trame,"accepted file transfert");
+            trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            unicast(fds[i].fd,trame,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
+            user_list=user_change_receive_from(user_list,user_pseudo(user_list,fds[i].fd),-1);
             break;
           }
 
+          if(strncmp(buffer,"N",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
+            trame=trame_set_message(trame,"cancelled file transfert");
+            trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            unicast(fds[i].fd,trame,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
+            user_list=user_change_send_to(user_list,user_pseudo(user_list,fds[i].fd),-1);
+            user_list=user_change_receive_from(user_list,user_pseudo(user_list,fds[i].fd),-1);
+            break;
+          }
+
+
           //we write back to the client---------------------------------------------
-          sprintf(envoie,"[Server] %s",buffer);
-          do_write(fds[i].fd,envoie);
+          trame=trame_set_message(trame,buffer);
+          trame=trame_set_sender_name(trame,"Server");
+          do_write(fds[i].fd,trame);
+
         }
       }
     }

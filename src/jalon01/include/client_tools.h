@@ -1,3 +1,5 @@
+#include "message.h"
+
 
 #ifndef _CLIENT_TOOLS_H_
 #define _CLIENT_TOOLS_H_
@@ -32,6 +34,9 @@ void handle_client_message(int socket, char *message);
 //------------------------------------------------------------------------------
 
 int do_read(int socket, char *buffer);
+
+int do_read2(int socket, struct trame *trame);
+
 
 void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr);
 

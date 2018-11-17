@@ -76,11 +76,25 @@ void handle_client_message(int socket, char *message){
 int do_read(int socket, char *buffer){
   memset (buffer,'\0', MSG_SIZE);
   int i = read(socket,buffer,MSG_SIZE);
+
   if(i == -1){
     error("ERROR read server");
   }
   return i;
 }
+
+
+int do_read2(int socket, struct trame *trame){
+  trame_set_to_zero(trame);
+
+  int i = read(socket,trame,size_struc_trame());
+  printf("dd%s\n",trame_message(trame));
+  if(i == -1){
+    error("ERROR read server");
+  }
+  return i;
+}
+
 
 void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr){
   int i = bind(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(pointeur_serv_addr));
