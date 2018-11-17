@@ -7,225 +7,284 @@
 #include <netinet/in.h>
 #include <poll.h>
 #include <signal.h>
+#include <time.h>
+#include <arpa/inet.h>
+#include "include/server_tools.h"
+#include "include/user_tools.h"
+#include "include/server_cast.h"
+#include "include/server_channel.h"
 
-
-
-
-//Fonctions---------------------------------------------------------------------
-
-void error(const char *msg)
-{
-  perror(msg);
-  exit(1);
-}
-
-//------------------------------------------------------------------------------
-
-int do_socket(int domain, int type, int protocol) {
-  int socket1;
-  int yes = 1;
-
-  //create the socket
-  socket1 = socket(domain,type,protocol);
-
-  //check for socket validity
-  if(socket1 == -1){
-    error("ERROR socket creation");
-  }
-
-  // set socket option, to prevent "already in use" issue when rebooting the server right on
-  if (setsockopt(socket1, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1){
-    error("ERROR setting socket options");
-  }
-
-  return socket1;
-}
-
-//------------------------------------------------------------------------------
-
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr) {
-
-  int portno;
-
-  //clean the serv_add structure
-  memset(serv_addr,'\0',sizeof(serv_addr));
-
-  //cast the port from a string to an int
-  portno = atoi(port);
-
-  //internet family protocol
-  serv_addr->sin_family = AF_INET;
-
-  //we bind to any ip form the host
-  serv_addr->sin_addr.s_addr = INADDR_ANY;
-
-  //we bind on the tcp port specified
-  serv_addr->sin_port = htons(portno);
-
-}
-
-
-//------------------------------------------------------------------------------
-
-void do_bind(int socket, const struct sockaddr_in pointeur_serv_addr){
-  int i = bind(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(pointeur_serv_addr));
-  if(i == -1){
-    error("ERROR bind server");
-  }
-}
-
-
-
-//------------------------------------------------------------------------------
-
-void listen_client(int socket, int backlog){
-  int i = listen(socket, backlog);
-  if(i == -1){
-    error("ERROR listen server");
-  }
-}
-
-
-//------------------------------------------------------------------------------
-
-int do_accept(int socket, struct sockaddr_in pointeur_host_addr){
-  size_t host_addr_size = sizeof(struct sockaddr_in);
-  int i = accept(socket, (struct sockaddr *) &pointeur_host_addr,(socklen_t *) &host_addr_size);
-  if(i == -1){
-    error("ERROR accepte server");
-  }
-  return i;
-}
-
-
-//------------------------------------------------------------------------------
-
-void do_read(int socket, char *buffer){
-  int i = read(socket,buffer,255);
-  if(i == -1){
-    error("ERROR read server");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-void do_write(int fd, const void *buffer){
-  size_t i = write(fd,buffer,255);
-  if(i == -1){
-    error("ERROR write server");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-void close_socket(int socket){
-  int i = close(socket);
-  if(i == -1){
-    error("ERROR close socket");
-  }
-}
-
-
+#define nb_co_max 3
 
 //Corps-------------------------------------------------------------------------
 
-int main(int argc, char** argv)
-{
+int main(int argc, char** argv){
 
-  if (argc != 2)
-  {
+  if (argc != 2){
     fprintf(stderr, "usage: RE216_SERVER port\n");
     return 1;
   }
 
-  char buffer[256];
+  //Variables--------------------------------------------------------------
+
+  int i, valeur, event_fd, new_socket, space,file_name_size;
+  int nb_co = 0;
+  struct pollfd fds[200];
+  struct user *user_list = NULL;
+  struct channel *channel_list = NULL;
+  struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
+  char channel_name[MSG_SIZE];
+  char envoie[MSG_SIZE];
+  char buffer[MSG_SIZE];
+  char information[MSG_SIZE];
+  char pseudo[MSG_SIZE];
+
+
+
 
   //get the socket--------------------------------------------------------------
   printf("Etape : Création socket\n");
   int socket = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-
 
   //init the serv_add structure
   printf("Etape : Informations serveur\n");
   struct sockaddr_in pointeur_serv_addr;
   get_addr_info(argv[1], &pointeur_serv_addr);
 
-
   //perform the binding---------------------------------------------------------
   printf("Etape : Bind\n");
   do_bind(socket,pointeur_serv_addr);
-
 
   //listen for at most 20 concurrent client-------------------------------------
   printf("Etape : Ecoute\n");
   listen_client(socket,20);
 
-  int nb_co=0;
-  int nb_co_max=3;
-  int event_fd;
-  struct pollfd fds[200];
   memset(fds,-1,sizeof(fds));
-  fds[0].fd=socket;
-  fds[0].events=POLLIN;
-
+  fds[0].fd = socket;
+  fds[0].events = POLLIN;
 
 
   while(1){
 
+    memset(buffer,'\0',MSG_SIZE);
+    memset(information,'\0',MSG_SIZE);
+    memset(channel_name,'\0',MSG_SIZE);
+    memset(envoie,'\0',MSG_SIZE);
+
+
     // wait for an activity
-    event_fd=poll(fds,21,-1);
 
+    event_fd = poll(fds,nb_co_max+1,-1);
 
-    for (int i = 1; i <= 20; i++) {
-        if(fds[0].revents==POLLIN){
-          if(fds[i].fd==-1){
+    for (i = 1; i <= nb_co_max; i++) {
 
-            //accept connection from client-------------------------------------------
+      if(fds[0].revents == POLLIN){
+        if(fds[i].fd == -1){
 
-            struct sockaddr_in pointeur_host_addr;
-            int new_socket = do_accept(socket,pointeur_host_addr);
+          //accept connection from client-------------------------------------------
 
+          new_socket = do_accept(socket,pointeur_host_addr);
+          user_list = user_add(user_list,new_socket,pointeur_host_addr);
 
-            if(nb_co>=nb_co_max){
-              // refuse the connection if there is too much client
-              printf("Acceptation d'un nouveau client impossibla car trop de connection\n");
-              do_write(new_socket,"Server cannot accept incoming connections anymore. Try again later.");
-              close_socket(new_socket);
-              break;
-            }
-            printf("Acceptation d'un nouveau client\n");
-            fds[i].fd=new_socket;
-            fds[i].events=POLLIN;
-            nb_co++;
-            printf("nombre de connection = %i\n",nb_co);
-
+          if(nb_co >= nb_co_max){
+            do_write(new_socket,"[Server] : Server cannot accept incoming connections anymore. Try again later.");
+            close_socket(new_socket);
             break;
           }
+
+          printf("Acceptation d'un nouveau client : client %i\n",i);
+          fds[i].fd = new_socket;
+          fds[i].events = POLLIN;
+          nb_co++;
+          printf("Nombre de connection = %i\n",nb_co);
+          do_write(fds[i].fd,"[Server] : please logon with /nick <your pseudo>");
+          break;
         }
-        else
-            {
-              if(fds[i].revents==POLLIN){
-                //read what the client has to say------------------------------------------
-                memset (buffer, '\0', sizeof (buffer));
-                do_read(fds[i].fd,buffer);
-                printf("Le message reçu est: %s\n",buffer);
+      }
+      else{
+        if(fds[i].revents == POLLIN){
 
-                  //clean up client socket-------------------------------------------------
-                  if(strcmp(buffer, "/quit") == 0 ){
-                    printf("Fermeture socket client\n");
-                    close_socket(fds[i].fd);
-                    fds[i].fd=-1;
-                    fds[i].events=-1;
-                    nb_co--;
-                    break;
-                  }
+          //read what the do_readclient has to say------------------------------
+          valeur = do_read(fds[i].fd,buffer);
+          printf("Le message reçu est: %s\n",buffer);
 
-                //we write back to the client---------------------------------------------
-                do_write(fds[i].fd,buffer);
+          //command /nick
+          if(strncmp(buffer,"/nick",strlen("/nick")) == 0){
+            strcpy(information,buffer+strlen("/nick "));
+            printf("L'information reçue est: %s\n",information);
+
+            if(user_look_for_pseudo(user_list,information) == 0){
+              user_list = user_change_pseudo(user_list,information,fds[i].fd);
+              strcpy(envoie,"[Serveur] : Welcome on the chat : ");
+              do_write(fds[i].fd,strcat(envoie,information));
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This pseudo is already used, please take another one");
+            }
+            break;
+          }
+
+          //command /who
+          if(strcmp(buffer,"/who") == 0){
+            strcpy(envoie,user_display_list(user_list,fds[i].fd));
+            do_write(fds[i].fd,envoie);
+            break;
+          }
+
+          //command /whois
+          if(strncmp(buffer,"/whois",strlen("/whois")) == 0){
+            strcpy(information,buffer+strlen("/whois "));
+            strcpy(envoie,user_connexion_information(fds[i].fd,user_list,information));
+            do_write(fds[i].fd,envoie);
+            break;
+          }
+
+          // command broadcast--------------------------------------
+          if(strncmp(buffer,"/msgall",strlen("/msgall")) == 0){
+            sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+strlen("/msgall "));
+            broadcast(fds[i].fd,envoie,user_list);
+            break;
+          }
+
+          //clean up client socket----------------------------------------------
+          if(strcmp(buffer,"/quit") == 0 || valeur == 0){
+            strcpy(channel_name,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            if(user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 0){
+              channel_list = channel_down_number_member(channel_list,channel_name);
+              if(channel_nombre_membre(channel_look_for_channel(channel_list,channel_name)) == 0){
+                channel_list =  channel_delete(channel_list,channel_name);
               }
             }
+            user_list = delete_user(user_list,fds[i].fd);
+            printf("Fermeture socket client\n");
+            close_socket(fds[i].fd);
+            fds[i].fd = -1;
+            fds[i].events = -1;
+            nb_co--;
+            break;
           }
+
+          // quit the channel---------------------------------------------------
+          if(strncmp(buffer,"/quit",strlen("/quit")) == 0){
+            strcpy(channel_name,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            strcpy(information,buffer+strlen("/quit "));
+            if(strcmp(channel_name,information) == 0){
+              channel_list = channel_down_number_member(channel_list,channel_name);
+              user_list = user_change_name_channel(user_list,"Unspecified channel",fds[i].fd);
+              if(channel_nombre_membre(channel_look_for_channel(channel_list,channel_name)) == 0){
+                channel_list =  channel_delete(channel_list,channel_name);
+              }
+              sprintf(envoie,"[Server] You left the channel : %s",channel_name);
+
+            }
+            else
+              sprintf(envoie,"[Server] : The channel %s does not exist",channel_name);
+            do_write(fds[i].fd,envoie);
+            break;
+          }
+
+          // command unicast-------------------------------------------
+        if(strncmp(buffer,"/msg",4)==0){
+          int space=0;
+          while(buffer[space+strlen("/msg ")]!=' '){
+            space++;
+          }
+          memset(pseudo,'\0',MSG_SIZE);
+          strncpy(pseudo,buffer+strlen("/msg "),space);
+          sprintf(envoie,"[%s] %s",user_pseudo(user_list,fds[i].fd),buffer+1+space+strlen("/msg ") );
+          unicast(fds[i].fd,envoie,user_list,pseudo);
+          break;
         }
+
+          // command create--------------------------------------
+          if(strncmp(buffer,"/create",strlen("/create")) == 0){
+            strcpy(information,buffer+strlen("/create "));
+            if(channel_look_for_name(channel_list,information) == 0 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
+              channel_list = channel_add(channel_list,information);
+              sprintf(envoie,"[%s] : You have created channel : %s",information,information);
+              do_write(fds[i].fd,envoie);
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This name of channel is already used");
+            }
+            break;
+          }
+
+          // commande join ---------------------------------
+          if(strncmp(buffer,"/join",strlen("/join")) == 0){
+            strcpy(information,buffer+strlen("/join "));
+            if(channel_look_for_name(channel_list,information) == 1 && user_appartient_channel(user_look_for_user(user_list,fds[i].fd)) == 1){
+              channel_list = channel_up_number_member(channel_list,information);
+              user_list = user_change_name_channel(user_list,information,fds[i].fd);
+              sprintf(envoie,"[%s] : You have joined : %s",information,information);
+              do_write(fds[i].fd,envoie);
+            }
+            else{
+              do_write(fds[i].fd,"[Serveur] : This channel does not exist or you already are in a channel");
+            }
+            break;
+          }
+
+          // multicast channel ---------------------------------
+          if(strcmp(user_channel_name(user_look_for_user(user_list,fds[i].fd)),"Unspecified channel") != 0){
+            strcpy(envoie,buffer);
+            multicast(fds[i].fd,envoie,user_list,user_channel_name(user_look_for_user(user_list,fds[i].fd)));
+            break;
+          }
+
+          // command /send--------------------------------------
+
+          if(strncmp(buffer,"/send",5)==0){
+            int space=0;
+            while(buffer[space+strlen("/send ")]!=' '){
+              space++;
+            }
+            char file_name[MSG_SIZE];
+            file_name_size=0;
+
+            while(buffer[strlen(buffer)-file_name_size]!='/'){  //on cherche la taille du nom du fichier que l'on envoie
+              file_name_size++;
+            }
+
+            strcpy(file_name,buffer+strlen(buffer)-file_name_size+1);
+
+            memset(pseudo,'\0',MSG_SIZE);
+            strncpy(pseudo,buffer+strlen("/send "),space);
+
+            sprintf(envoie,"[%s] wants you to accept the transfer of the file \"%s\" . Do you accept? [Y/N]",user_pseudo(user_list,fds[i].fd),file_name);
+            unicast(fds[i].fd,envoie,user_list,pseudo);
+            user_list=user_change_send_to(user_list,pseudo,fds[i].fd);
+            user_list=user_change_receive_from(user_list,pseudo,fds[i].fd);
+            break;
+          }
+
+          //&& user_send(user_list,fds[i].fd)==1
+
+          //
+          if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
+            sprintf(envoie,"[%s] accepted file transfert.",user_pseudo(user_list,fds[i].fd));
+            unicast(fds[i].fd,envoie,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
+            user_list=user_change_send_to(user_list,pseudo,-1);
+            user_list=user_change_receive_from(user_list,pseudo,-1);
+            break;
+          }
+
+          if(strncmp(buffer,"N",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
+            sprintf(envoie,"[%s] cancelled file transfert.",user_pseudo(user_list,fds[i].fd));
+            unicast(fds[i].fd,envoie,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
+            user_list=user_change_send_to(user_list,pseudo,-1);
+            user_list=user_change_receive_from(user_list,pseudo,-1);
+            break;
+          }
+
+          //we write back to the client---------------------------------------------
+          sprintf(envoie,"[Server] %s",buffer);
+          do_write(fds[i].fd,envoie);
+        }
+      }
+    }
+  }
+
 
   //clean up server socket------------------------------------------------------
   printf("Fermeture socket serveur\n");

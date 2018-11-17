@@ -7,154 +7,238 @@
 #include <sys/socket.h>
 #include <netdb.h>
 #include <arpa/inet.h>
+#include <time.h>
+#include "include/client_tools.h"
+#include <signal.h>
+#include <poll.h>
+#include <sys/stat.h>
+#include <fcntl.h>
 
-//Fonctions---------------------------------------------------------------------
-
-void error(const char *msg)
-{
-  perror(msg);
-  exit(1);
-}
-
-
-
-
-int do_socket(int domain, int type, int protocol) {
-  int socket1;
-  int yes = 1;
-
-  //create the socket1
-  socket1 = socket(domain,type,protocol);
-
-  //check for socket1 validity
-  if(socket1 == -1){
-    error("ERROR socket1 creation");
-  }
-
-  // set socket1 option, to prevent "already in use" issue when rebooting the server right on
-  if (setsockopt(socket1, SOL_SOCKET, SO_REUSEADDR, &yes, sizeof(int)) == -1){
-    error("ERROR setting socket options");
-  }
-
-  return socket1;
-}
-
-
-//------------------------------------------------------------------------------
-
-
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* host) {
-
-  int portno;
-
-  //clean the serv_add structure
-  memset(serv_addr,'\0',sizeof(serv_addr));
-
-  //cast the port from a string to an int
-  portno = atoi(port);
-
-  //internet family protocol
-  serv_addr->sin_family = AF_INET;
-
-  //
-  inet_aton(host,&(serv_addr->sin_addr));
-
-  //we bind on the tcp port specified
-  serv_addr->sin_port = htons(portno);
-
-}
-
-//------------------------------------------------------------------------------
-
-
-void do_connect(int socket, struct sockaddr_in pointeur_serv_addr){
-  int i = connect(socket, (struct sockaddr*) &pointeur_serv_addr, sizeof(struct sockaddr));
-  if(i == -1){
-    error("ERROR connexion client");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-
-void handle_client_message(int socket, const void *message){
-  int i = send(socket,message,strlen(message),0);
-  if(i == -1){
-    error("ERROR envoi message server");
-  }
-}
-
-//------------------------------------------------------------------------------
-
-void do_read(int socket, char *buffer){
-  int i = read(socket,buffer,255);
-  if(i == -1){
-    error("ERROR read server");
-  }
-}
 
 
 //Corps-------------------------------------------------------------------------
 
 
 int main(int argc,char** argv){
-  char buffer[256];
-
-  if (argc != 3)
-  {
-    fprintf(stderr,"usage: RE216_CLIENT hostname port\n");
+  if (argc != 3){
+    fprintf(stderr,"usage: RE216_CLIENT  port hostname\n");
     return 1;
   }
 
+  //Variables--------------------------------------------------------------
 
-    //get the socket--------------------------------------------------------------
-    printf("Etape : Création socket\n");
-    int socket = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
-
-
-    //init the serv_add structure-------------------------------------------------
-    printf("Etape : Informations serveur\n");
-    struct sockaddr_in pointeur_serv_addr;
-    get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
-
-
-    //connect to remote socket----------------------------------------------------
-    printf("Etape : Connexion serveur\n");
-    do_connect(socket,pointeur_serv_addr);
-
-    while(1){
-
-    //get user input--------------------------------------------------------------
-    printf("Etape : Lecture saisie\n");
-    const char saisie[256];
-    gets(saisie);
-    const void* msg = saisie;
+  char buffer[MSG_SIZE];
+  char saisie[MSG_SIZE];
+  char message[MSG_SIZE];
+  char copie[MSG_SIZE];
+  char file_to_send_path[MSG_SIZE];
+  char file_receive_path[MSG_SIZE];
+  char sender_name[MSG_SIZE];
+  char file_receive_name[MSG_SIZE];
+  int ready_to_receive=0; // sera à 1 si on un utilisateur veut nous envoyer un fichier
+  int error;
+  int socket;
+  struct sockaddr_in pointeur_serv_addr;
+  int event_fd;
+  int file_fd;
+  char file[MSG_SIZE];
+  int new_socket_receiver;
 
 
-    //send message to the server--------------------------------------------------
-    printf("Etape : Envoi message utilisateur\n");
-    handle_client_message(socket,msg);
+
+  //get the socket--------------------------------------------------------------
+  printf("Etape : Création socket\n");
+  socket = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+
+  //init the serv_add structure-------------------------------------------------
+  printf("Etape : Informations serveur\n");
+  get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
+
+  //connect to remote socket----------------------------------------------------
+  printf("Connexion au serveur\n");
+  do_connect(socket,pointeur_serv_addr);
 
 
-    //connexion end---------------------------------------------------------------
-    if(strcmp(msg, "/quit") == 0 ){
-      printf("Fermeture connexion client\n");
-      break;
+  //Obligation identification
+  memset(buffer,'\0',MSG_SIZE);
+  do_read(socket,buffer);
+  printf("%s\n",buffer);
+
+  while(1){
+    memset(saisie,'\0',MSG_SIZE);
+    do_read(STDIN_FILENO,saisie);
+    if(strncmp(saisie,"/nick ",strlen("/nick ")) == 0){
+      memset (message, '\0', MSG_SIZE);
+      strncpy(message,saisie,strlen(saisie)-1);
+      handle_client_message(socket,message);
+      do_read(socket,buffer);
+      printf("%s\n",buffer);
+      if(strcmp(buffer,"[Serveur] : Pseudo déjà existant, veuillez en choisir un nouveau")!=0){
+        break;
+      }
     }
-
-    //read what the client has to say---------------------------------------------
-    printf("Etape : Lecture du message reçu\n");
-    memset (buffer, '\0', sizeof (buffer));
-    do_read(socket,buffer);
-    printf("Le message reçu est: %s\n",buffer);
-
-
+    else{
+      printf("[Client] : veuillez respecter la synthaxe\n");
+    }
   }
 
+  struct pollfd fds[200];
+  int valeur;
+
+  memset(fds,-1,sizeof(fds));
+  fds[0].fd = socket;
+  fds[0].events = POLLIN;
+  fds[1].fd=STDIN_FILENO;
+  fds[1].events = POLLIN;
+
+
+  while(1){
+    error=0;
+
+    // wait for an activity
+
+    event_fd = poll(fds,3,-1);
+
+    if(fds[1].revents == POLLIN){
+      //get user input--------------------------------------------------------------
+      do_read(STDIN_FILENO,saisie);
+      memset (message, '\0', MSG_SIZE);
+      strncpy(message,saisie,strlen(saisie)-1);
+
+      //connexion end---------------------------------------------------------------
+      if(strncmp(message, "/quit",strlen("/quit")) == 0){
+        printf("Fermeture connexion client\n");
+        break;
+      }
+
+      if(strncmp(message, "/send",strlen("/send")) == 0){
+        memset(file_to_send_path,'\0',MSG_SIZE);
+
+      //   /media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/file.txt
+
+        for(int i =strlen("/send ")+1;i<strlen(message);i++){
+          if(message[i]==' '){
+            strcpy(file_to_send_path,message+i+1);
+            break;
+          }
+        }
+        file_fd=open(file_to_send_path,O_RDONLY);
+        if(file_fd<=0){
+          printf("The file does not exist, please try again\n");
+          error=1;
+        }
+        else{
+          do_read(file_fd,file);
+        }
+      }
+
+
+
+      if(strcmp(message,"N") == 0 &&  ready_to_receive==1){
+          ready_to_receive=0;
+      }
+
+      //send message to the server--------------------------------------------------
+      if(error==0)
+        handle_client_message(socket,message);
+
+
+      if(strcmp(message,"Y") == 0 &&  ready_to_receive==1){
+
+            int socket_receiver= do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+
+            //init the serv_add structure
+            struct sockaddr_in pointeur_recep_addr;
+            get_addr_info("1025", &pointeur_recep_addr,"127.0.0.1");
+
+            //perform the binding---------------------------------------------------------
+            do_bind(socket_receiver,pointeur_recep_addr);
+
+            //listen for at most 1 concurrent client-------------------------------------
+            listen_client(socket_receiver,1);
+            struct sockaddr_in *pointeur_host_addr = malloc(sizeof(struct sockaddr_in));
+
+            new_socket_receiver=do_accept(socket_receiver,pointeur_host_addr);
+            fds[2].fd = new_socket_receiver;
+            fds[2].events = POLLIN;
+            printf("accept\n");
+            do_read(new_socket_receiver,buffer);
+            printf("read \n");
+            sprintf(file_receive_path,"/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/inbox/%s",file_receive_name);  // changer le chemin en fonction de la machine
+            int test_fd=open(file_receive_path,O_RDWR|O_CREAT);
+            write(test_fd,buffer,strlen(buffer));
+            printf("%s saved in %s\n",file_receive_name,file_receive_path);
+            close(new_socket_receiver);
+            close(socket_receiver);
+            ready_to_receive=0;
+          }
+
+
+    }
+
+
+    if(fds[0].revents == POLLIN){
+      //read what the server has to say---------------------------------------------
+      memset (buffer, '\0', strlen(buffer));
+      valeur=do_read(socket,buffer);
+      fprintf(stdout,"%s\n",buffer);
+
+      //on chercher le nom de l'envoyeur
+      memset(sender_name,'\0',MSG_SIZE);
+      for(int j=1;j<=MSG_SIZE;j++){
+        if(buffer[j]==']'){
+          strncpy(sender_name,buffer+1,j-1);
+          break;
+        }
+      }
+      memset(file_receive_name,'\0',MSG_SIZE);
+
+      if(strncmp(buffer+strlen(sender_name)+3, "wants you to accept the transfer of the file",strlen("wants you to accept the transfer of the file")) == 0){
+        for(int j=1;j<=MSG_SIZE;j++){
+          if(buffer[j+strlen(sender_name)+3+strlen("wants you to accept the transfer of the file\"")]=='\"'){
+            strncpy(file_receive_name,buffer+strlen(sender_name)+3+strlen(" wants you to accept the transfer of the file\""),j-1);
+            break;
+          }
+        }
+        ready_to_receive=1;
+      }
+
+
+      if(strncmp(buffer+strlen(sender_name)+3, "accepted file transfert.",strlen("accepted file transfert.")) == 0){
+        char port[4];
+        memset (port, '\0', strlen(port));
+
+        struct sockaddr_in pointeur_sender_addr;
+        int socket_sender;
+        socket_sender = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
+
+        //init the serv_add structure-------------------------------------------------
+        get_addr_info("1025", &pointeur_sender_addr,"127.0.0.1");
+
+        //connect to remote socket----------------------------------------------------
+        do_connect(socket_sender,pointeur_sender_addr);
+        fds[2].fd = socket_sender;
+        fds[2].events = POLLIN;
+        handle_client_message(socket_sender,file);
+      }
+
+
+
+
+
+
+      if(valeur == 0){
+        printf("Fermeture connexion client\n");
+        break;
+      }
+    }
+  }
+
+
   //close socket----------------------------------------------------------------
+
   printf("Fermeture socket\n");
   close(socket);
-
   return 0;
 
 }
