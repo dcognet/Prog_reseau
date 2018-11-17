@@ -41,13 +41,12 @@ int do_socket(int domain, int type, int protocol) {
 //------------------------------------------------------------------------------
 
 
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* host) {
+void get_addr_info(int port, struct sockaddr_in* serv_addr,const char* host) {
   int portno;
   memset(serv_addr,'\0',sizeof(serv_addr));
-  portno = atoi(port);
   serv_addr->sin_family = AF_INET;
   inet_aton(host,&(serv_addr->sin_addr));
-  serv_addr->sin_port = htons(portno);
+  serv_addr->sin_port = htons(port);
 }
 
 //------------------------------------------------------------------------------

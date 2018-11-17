@@ -28,6 +28,7 @@ struct trame *trame_set_file(struct trame *trame,char file[]);
 
 struct trame *trame_set_channel_name(struct trame *trame,char channel[]);
 
+
 char *trame_message(struct trame *trame);
 
 char *trame_sender_name(struct trame *trame);
@@ -35,5 +36,7 @@ char *trame_sender_name(struct trame *trame);
 char *trame_channel_name(struct trame *trame);
 
 char *trame_file_name(struct trame *trame);
+
+int trame_port(struct trame *trame);
 
 #endif

@@ -30,20 +30,20 @@ int main(int argc,char** argv){
   char buffer[MSG_SIZE];
   char saisie[MSG_SIZE];
   char message[MSG_SIZE];
-  char copie[MSG_SIZE];
-  char file_to_send_path[MSG_SIZE];
-  char file_receive_path[MSG_SIZE];
-  char sender_name[MSG_SIZE];
-  char file_receive_name[MSG_SIZE];
+  char file_to_send_path[MSG_SIZE]; //path of the file the client want to send
+  char file_receive_path[MSG_SIZE]; //path where the file will be saved
+  char file_receive_name[MSG_SIZE]; // name of the file we receive
   int ready_to_receive=0; // sera à 1 si on un utilisateur veut nous envoyer un fichier
   int error;
   int socket;
   struct sockaddr_in pointeur_serv_addr;
   int event_fd;
   int file_fd;
-  char file[MSG_SIZE];
+  char file[MSG_SIZE]; // name of the file we send
   int new_socket_receiver;
-  struct trame *trame=NULL;
+
+  struct trame *trame=NULL; //trame send by the server
+  int recieve_port; //port number for the peer to peer
   trame=trame_init(trame);
   trame=trame_set_to_zero(trame);
 
@@ -55,7 +55,7 @@ int main(int argc,char** argv){
 
   //init the serv_add structure-------------------------------------------------
   printf("Etape : Informations serveur\n");
-  get_addr_info(argv[1], &pointeur_serv_addr,argv[2]);
+  get_addr_info(atoi(argv[1]), &pointeur_serv_addr,argv[2]);
 
   //connect to remote socket----------------------------------------------------
   printf("Connexion au serveur\n");
@@ -139,7 +139,7 @@ int main(int argc,char** argv){
       }
 
 
-
+      //check if the client don't want to receive the file
       if(strcmp(message,"N") == 0 &&  ready_to_receive==1){
           ready_to_receive=0;
       }
@@ -148,14 +148,15 @@ int main(int argc,char** argv){
       if(error==0)
         handle_client_message(socket,message);
 
-
+      //check if the client is ok to receive the file
       if(strcmp(message,"Y") == 0 &&  ready_to_receive==1){
 
             int socket_receiver= do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
+            printf("%i\n",recieve_port );
             //init the serv_add structure
             struct sockaddr_in pointeur_recep_addr;
-            get_addr_info("1025", &pointeur_recep_addr,"127.0.0.1");
+            get_addr_info(recieve_port, &pointeur_recep_addr,"127.0.0.1");
 
             //perform the binding---------------------------------------------------------
             do_bind(socket_receiver,pointeur_recep_addr);
@@ -167,9 +168,7 @@ int main(int argc,char** argv){
             new_socket_receiver=do_accept(socket_receiver,pointeur_host_addr);
             fds[2].fd = new_socket_receiver;
             fds[2].events = POLLIN;
-            printf("accept\n");
             do_read(new_socket_receiver,buffer);
-            printf("read \n");
             sprintf(file_receive_path,"/media/sf_Dossier_partagé_LINUX/S7/Prog_reseaux/Prog_reseau/src/jalon01/inbox/%s",file_receive_name);  // changer le chemin en fonction de la machine
             int test_fd=open(file_receive_path,O_RDWR|O_CREAT);
             write(test_fd,buffer,strlen(buffer));
@@ -199,25 +198,27 @@ int main(int argc,char** argv){
       if(strncmp(trame_message(trame),"wants you to accept the transfer of the file",strlen("wants you to accept the transfer of the file")) == 0){
           ready_to_receive=1;
           strcpy(file_receive_name,trame_file_name(trame));
+          recieve_port=trame_port(trame);
       }
 
 
       if(strncmp(trame_message(trame),"accepted file transfert",strlen("accepted file transfert")) == 0){
-        char port[4];
-        memset (port, '\0', strlen(port));
 
         struct sockaddr_in pointeur_sender_addr;
         int socket_sender;
         socket_sender = do_socket(AF_INET,SOCK_STREAM,IPPROTO_TCP);
 
+        printf("%i\n",trame_port(trame) );
         //init the serv_add structures-------------------------------------------------
-        get_addr_info("1025", &pointeur_sender_addr,"127.0.0.1");
+        get_addr_info(trame_port(trame), &pointeur_sender_addr,"127.0.0.1");
 
         //connect to remote socket----------------------------------------------------
         do_connect(socket_sender,pointeur_sender_addr);
         fds[2].fd = socket_sender;
         fds[2].events = POLLIN;
         handle_client_message(socket_sender,file);
+        close(socket_sender);
+
       }
 
 

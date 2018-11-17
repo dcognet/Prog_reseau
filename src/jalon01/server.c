@@ -45,8 +45,7 @@ int main(int argc, char** argv){
   trame=trame_init(trame);
   trame=trame_set_to_zero(trame);
 
-
-
+  int port=atoi(argv[1])+1;
 
 
   //get the socket--------------------------------------------------------------
@@ -282,7 +281,6 @@ int main(int argc, char** argv){
             }
 
             strcpy(file_name,buffer+strlen(buffer)-file_name_size+1);
-
             memset(pseudo,'\0',MSG_SIZE);
             strncpy(pseudo,buffer+strlen("/send "),space);
 
@@ -290,6 +288,7 @@ int main(int argc, char** argv){
             trame=trame_set_file(trame,file_name);
             trame=trame_set_message(trame,envoie);
             trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            trame=trame_set_port(trame,port);
             unicast(fds[i].fd,trame,user_list,pseudo);
             user_list=user_change_send_to(user_list,pseudo,fds[i].fd);
             user_list=user_change_receive_from(user_list,pseudo,fds[i].fd);
@@ -297,15 +296,18 @@ int main(int argc, char** argv){
           }
 
 
-          //
+          //check if the receiver is ok to receive the file
           if(strncmp(buffer,"Y",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
             trame=trame_set_message(trame,"accepted file transfert");
             trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));
+            trame=trame_set_port(trame,port);
             unicast(fds[i].fd,trame,user_list,user_pseudo(user_list,user_receive_from(user_list,fds[i].fd)));
             user_list=user_change_receive_from(user_list,user_pseudo(user_list,fds[i].fd),-1);
+            port++;
             break;
           }
 
+          //check is the receiver don't want to reveice the file
           if(strncmp(buffer,"N",1)==0 && user_receive_from(user_list,fds[i].fd)!=-1 ){
             trame=trame_set_message(trame,"cancelled file transfert");
             trame=trame_set_sender_name(trame,user_pseudo(user_list,fds[i].fd));

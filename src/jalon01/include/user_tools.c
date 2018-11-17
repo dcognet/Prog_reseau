@@ -203,6 +203,7 @@ struct user *delete_user(struct user *user_list,int fd){
   return user_list;
 }
 
+//return the user which have the file descriptor fd
 struct user *user_look_for_user(struct user *user_list,int fd){
   if (user_list == NULL){
     return NULL;
@@ -275,6 +276,8 @@ int search_user_fd(struct user *user_list,char pseudo[]){
   return -1;
 }
 
+//renseigne à l'envoyeur le fd de la socket correspondante au receveur (pour le cas de l'envoie de fichier)
+
 struct user *user_change_send_to(struct user *user,char pseudo[],int fd){
 
   struct user *temp = user;
@@ -292,6 +295,7 @@ struct user *user_change_send_to(struct user *user,char pseudo[],int fd){
   return user;
 }
 
+//renseigne au recpeteur le fd de la socket correspondante à l'envoyeur (pour le cas de l'envoie de fichier)
 struct user *user_change_receive_from(struct user *user,char pseudo[],int fd){
 
   struct user *temp = user;
@@ -309,6 +313,7 @@ struct user *user_change_receive_from(struct user *user,char pseudo[],int fd){
   return user;
 }
 
+// return le fd  de la socket du recepteur (pour le cas de l'envoie de fichier)
 int user_send(struct user *user_list,int fd){
   if (user_list==NULL){
     return -1;
@@ -322,6 +327,7 @@ int user_send(struct user *user_list,int fd){
   return -1;
 }
 
+// return le fd  de la socket de l'envoyeur (pour le cas de l'envoie de fichier)
 int user_receive_from(struct user *user_list,int fd){
   if (user_list==NULL){
     return -1;
@@ -335,6 +341,7 @@ int user_receive_from(struct user *user_list,int fd){
   return -1;
 }
 
+// return the port of the user
 int user_port(struct user *user_list,int fd){
   if (user_list==NULL){
     return -1;

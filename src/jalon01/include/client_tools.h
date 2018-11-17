@@ -19,7 +19,7 @@ int do_socket(int domain, int type, int protocol);
 //------------------------------------------------------------------------------
 
 
-void get_addr_info(const char* port, struct sockaddr_in* serv_addr,const char* host) ;
+void get_addr_info(int port, struct sockaddr_in* serv_addr,const char* host) ;
 
 //------------------------------------------------------------------------------
 

@@ -88,3 +88,7 @@ char *trame_channel_name(struct trame *trame){
 char *trame_file_name(struct trame *trame){
   return trame->file_name;
 }
+
+int trame_port(struct trame *trame){
+  return trame->port;
+}
