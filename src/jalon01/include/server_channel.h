@@ -14,7 +14,7 @@
 #ifndef _SERVER_CHANNEL_H_
 #define _SERVER_CHANNEL_H_
 
-#define nb_co_max 3
+#define nb_co_max 20
 
 struct channel;
 
@@ -35,5 +35,7 @@ struct channel *channel_delete(struct channel *channel_list,char *channel_name);
 struct channel *channel_look_for_channel(struct channel *channel_list,char *channel_name);
 
 int channel_nombre_membre(struct channel* channel);
+
+char *channel_display_list(struct channel *channel_list);
 
 #endif

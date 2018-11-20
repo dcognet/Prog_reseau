@@ -146,3 +146,27 @@ int channel_nombre_membre(struct channel* channel){
   int i = channel->nombre_membre;
   return i;
 }
+
+
+//Display the list of channel -----------------------------------------------------
+
+char *channel_display_list(struct channel *channel_list){
+  char *buffer = malloc(sizeof(char)*MSG_SIZE);
+  memset(buffer,'\0',MSG_SIZE);
+  strcpy(buffer,"The channel are :");
+  char channel[MSG_SIZE];
+  memset(channel,'\0',MSG_SIZE);
+
+  if(channel_list_size(channel_list)==0){
+    strcpy(buffer,"There is not any channel");
+    return buffer;
+  }
+
+  while (channel_list!= NULL){
+    strcat(channel,"\n -");
+    strcat(channel,channel_list->channel_name);
+    channel_list = channel_list->next_channel;
+  }
+  strcat(buffer,channel);
+  return buffer;
+}

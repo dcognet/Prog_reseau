@@ -18,11 +18,11 @@ size_t size_struc_trame(){
 
 //initialisation de la structure trame
 struct trame *trame_init(struct trame *trame){
-  trame = malloc(sizeof(struct trame));
+  trame= malloc(sizeof(struct trame));
   strcpy(trame->sender_name,"");
   strcpy(trame->message,"");
   strcpy(trame->file_name,"");
-  trame->port = 0;
+  trame->port=0;
   strcpy(trame->channel_name,"");
   return trame;
 }
@@ -52,7 +52,7 @@ struct trame *trame_set_sender_name(struct trame *trame,char sender_name[]){
 
 //met le port sur lequel le recpeteur va ecouter et l'éxpéditeur va se connecter (pour l'echange de fichier)
 struct trame *trame_set_port(struct trame *trame,int port){
-  trame->port = port;
+  trame->port=port;
   return trame;
 }
 

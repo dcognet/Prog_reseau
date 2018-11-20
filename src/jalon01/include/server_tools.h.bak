@@ -35,6 +35,4 @@ void do_write(int fd, const void *buffer);
 
 void close_socket(int socket);
 
-int verification_synthaxe(char * buffer, int p);
-
 #endif
